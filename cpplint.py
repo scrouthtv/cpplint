@@ -5641,7 +5641,26 @@ _HEADERS_MAYBE_TEMPLATES = (
     ('<utility>', ('forward', 'make_pair', 'move', 'swap')),
     )
 
-_RE_PATTERN_STRING = re.compile(r'\bstring\b')
+# Non templated types or global objects
+_HEADERS_TYPES_OR_OBJS = (
+    # String and others are special -- it is a non-templatized type in STL.
+    ('<string>', ('string',)),
+    ('<iostream>', ('cin', 'cout', 'cerr', 'clog', 'wcin', 'wcout',
+                    'wcerr', 'wclog')),
+    ('<cstdio>', ('FILE', 'fpos_t')))
+
+# Non templated functions
+_HEADERS_FUNCTIONS = (
+    ('<cstdio>', ('fopen', 'freopen',
+                  'fclose', 'fflush', 'setbuf', 'setvbuf', 'fread',
+                  'fwrite', 'fgetc', 'getc', 'fgets', 'fputc', 'putc',
+                  'fputs', 'getchar', 'gets', 'putchar', 'puts', 'ungetc',
+                  'scanf', 'fscanf', 'sscanf', 'vscanf', 'vfscanf',
+                  'vsscanf', 'printf', 'fprintf', 'sprintf', 'snprintf',
+                  'vprintf', 'vfprintf', 'vsprintf', 'vsnprintf',
+                  'ftell', 'fgetpos', 'fseek', 'fsetpos',
+                  'clearerr', 'feof', 'ferror', 'perror',
+                  'tmpfile', 'tmpnam'),),)
 
 _re_pattern_headers_maybe_templates = []
 for _header, _templates in _HEADERS_MAYBE_TEMPLATES:
@@ -5662,6 +5681,23 @@ for _header, _templates in _HEADERS_CONTAINING_TEMPLATES:
          _template + '<>',
          _header))
 
+_re_pattern_types_or_objs = []
+for _header, _types_or_objs in _HEADERS_TYPES_OR_OBJS:
+  for _type_or_obj in _types_or_objs:
+    _re_pattern_types_or_objs.append(
+        (re.compile(r'\b' + _type_or_obj + r'\b'),
+            _type_or_obj,
+            _header))
+
+_re_pattern_functions = []
+for _header, _functions in _HEADERS_FUNCTIONS:
+  for _function in _functions:
+    # Match printf(..., ...), but not foo->printf, foo.printf or
+    # 'type::printf()'.
+    _re_pattern_functions.append(
+        (re.compile(r'([^>.]|^)\b' + _function + r'\([^\)]'),
+            _function,
+            _header))
 
 def FilesBelongToSameModule(filename_cc, filename_h):
   """Check if these two filenames belong to the same module.
@@ -5774,14 +5810,17 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
     if not line or line[0] == '#':
       continue
 
-    # String is special -- it is a non-templatized type in STL.
-    matched = _RE_PATTERN_STRING.search(line)
-    if matched:
-      # Don't warn about strings in non-STL namespaces:
-      # (We check only the first match per line; good enough.)
-      prefix = line[:matched.start()]
-      if prefix.endswith('std::') or not prefix.endswith('::'):
-        required['<string>'] = (linenum, 'string')
+    _re_patterns = []
+    _re_patterns.extend(_re_pattern_types_or_objs)
+    _re_patterns.extend(_re_pattern_functions)
+    for pattern, item, header in _re_patterns:
+      matched = pattern.search(line)
+      if matched:
+        # Don't warn about strings in non-STL namespaces:
+        # (We check only the first match per line; good enough.)
+        prefix = line[:matched.start()]
+        if prefix.endswith('std::') or not prefix.endswith('::'):
+          required[header] = (linenum, item)
 
     for pattern, template, header in _re_pattern_headers_maybe_templates:
       if pattern.search(line):
@@ -5829,16 +5868,6 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
     fullpath = common_path + header
     if same_module and UpdateIncludeState(fullpath, include_dict, io):
       header_found = True
-
-  # If we can't find the header file for a .cc, assume it's because we don't
-  # know where to look. In that case we'll give up as we're not sure they
-  # didn't include it in the .h file.
-  # TODO(unknown): Do a better job of finding .h files so we are confident that
-  # not having the .h file means there isn't one.
-  if not header_found:
-    for extension in GetNonHeaderExtensions():
-      if filename.endswith('.' + extension):
-        return
 
   # All the lines have been processed, report the errors found.
   for required_header_unstripped in sorted(required, key=required.__getitem__):

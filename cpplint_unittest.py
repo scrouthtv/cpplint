@@ -574,6 +574,7 @@ class CpplintTest(CpplintTestBase):
     error_collector = ErrorCollector(self.assert_)
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
+                             '#include <iostream>',
                              'for (int i = 0; i != 100; ++i) {',
                              '  std::cout << i << std::endl;',
                              '};  // NOLINT',
@@ -929,12 +930,10 @@ class CpplintTest(CpplintTestBase):
 
   def testIncludeWhatYouUseNoImplementationFiles(self):
     code = 'std::vector<int> foo;'
-    for extension in ['h', 'hpp', 'hxx', 'h++', 'cuh']:
+    for extension in ['h', 'hpp', 'hxx', 'h++', 'cuh',
+                      'c', 'cc', 'cpp', 'cxx', 'c++', 'cu']:
       self.assertEquals('Add #include <vector> for vector<>'
                        '  [build/include_what_you_use] [4]',
-                       self.PerformIncludeWhatYouUse(code, 'foo.' + extension))
-    for extension in ['c', 'cc', 'cpp', 'cxx', 'c++', 'cu']:
-      self.assertEquals('',
                        self.PerformIncludeWhatYouUse(code, 'foo.' + extension))
 
   def testIncludeWhatYouUse(self):
@@ -1022,6 +1021,12 @@ class CpplintTest(CpplintTestBase):
            bool foobar = min<int>(0,1);
         """,
         'Add #include <algorithm> for min  [build/include_what_you_use] [4]')
+    self.TestIncludeWhatYouUse(
+        'cout << "hello world" << endl;',
+        'Add #include <iostream> for cout  [build/include_what_you_use] [4]')
+    self.TestIncludeWhatYouUse(
+        'printf("hello world");',
+        'Add #include <cstdio> for printf  [build/include_what_you_use] [4]')
     self.TestIncludeWhatYouUse(
         'void a(const string &foobar);',
         'Add #include <string> for string  [build/include_what_you_use] [4]')
@@ -1146,13 +1151,6 @@ class CpplintTest(CpplintTestBase):
         io=MockIo(mock_header_contents))
     self.assertEquals(message, 'Add #include <set> for set<>  '
                       '[build/include_what_you_use] [4]')
-
-    # If there's just a cc and the header can't be found then it's ok.
-    message = self.PerformIncludeWhatYouUse(
-        """#include "blah/a.h"
-           std::set<int> foo;""",
-        filename='blah/a.cc')
-    self.assertEquals(message, '')
 
     # Make sure we find the headers with relative paths.
     mock_header_contents = ['']
@@ -2404,6 +2402,8 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData(
         'foo.cc', 'cc',
         ['// Copyright 2014 Your Company. All Rights Reserved.',
+         '#include <string>',
+         '#include <utility>',
          'void swap(int &x,',
          '          int &y) {',
          '}',
@@ -2996,6 +2996,7 @@ class CpplintTest(CpplintTestBase):
     error_collector = ErrorCollector(self.assert_)
     cpplint.ProcessFileData('foo.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
+                             '#include <string>',
                              'string Class',
                              '::MemberFunction1();',
                              'string Class::',
@@ -4767,6 +4768,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData(
         'foo.cc', 'cc',
         ['// Copyright 2014 Your Company.',
+         '#include <cstdio>',
          r'printf("\\%%%d", value);',
          r'printf(R"(\[)");',
          r'printf(R"(\[%s)", R"(\])");',
