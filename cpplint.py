@@ -408,7 +408,7 @@ _CPP_HEADERS = frozenset([
     'alloc.h',
     'builtinbuf.h',
     'bvector.h',
-    'complex.h',
+    # 'complex.h', collides with System C header "complex.h"
     'defalloc.h',
     'deque.h',
     'editbuf.h',
