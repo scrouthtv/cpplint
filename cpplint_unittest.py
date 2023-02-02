@@ -493,6 +493,11 @@ class CpplintTest(CpplintTestBase):
         'long a = (int64) 65;  // NOLINT(runtime/int)',
         'Using C-style cast.  Use static_cast<int64>(...) instead'
         '  [readability/casting] [4]')
+    # Two categories of errors suppressed:
+    self.TestLint(
+        'long a = (int64) 65;  // NOLINT(runtime/int,readability/casting)',
+        '')
+
     # All categories suppressed: (two aliases)
     self.TestLint('long a = (int64) 65;  // NOLINT', '')
     self.TestLint('long a = (int64) 65;  // NOLINT(*)', '')
@@ -514,6 +519,15 @@ class CpplintTest(CpplintTestBase):
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTNEXTLINE(whitespace/line_length)',
                              '//  ./command' + (' -verbose' * 80),
+                             ''],
+                            error_collector)
+    self.assertEquals('', error_collector.Results())
+    # NOLINTNEXTLINE multiple categories silences warning for the next line instead of current line
+    error_collector = ErrorCollector(self.assert_)
+    cpplint.ProcessFileData('test.cc', 'cc',
+                            ['// Copyright 2014 Your Company.',
+                             '// NOLINTNEXTLINE(runtime/int,readability/casting)',
+                             'long a = (int64) 65;',
                              ''],
                             error_collector)
     self.assertEquals('', error_collector.Results())
