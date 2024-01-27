@@ -408,7 +408,7 @@ _CPP_HEADERS = frozenset([
     'alloc.h',
     'builtinbuf.h',
     'bvector.h',
-    # 'complex.h', collides with System C header "complex.h"
+    # 'complex.h', collides with System C header "complex.h" since C11
     'defalloc.h',
     'deque.h',
     'editbuf.h',
@@ -454,7 +454,7 @@ _CPP_HEADERS = frozenset([
     'tree.h',
     'type_traits.h',
     'vector.h',
-    # 17.6.1.2 C++ library headers
+    # C++ library headers
     'algorithm',
     'array',
     'atomic',
@@ -508,9 +508,9 @@ _CPP_HEADERS = frozenset([
     'utility',
     'valarray',
     'vector',
-    # 17.6.1.2 C++14 headers
+    # C++14 headers
     'shared_mutex',
-    # 17.6.1.2 C++17 headers
+    # C++17 headers
     'any',
     'charconv',
     'codecvt',
@@ -520,7 +520,7 @@ _CPP_HEADERS = frozenset([
     'optional',
     'string_view',
     'variant',
-    # 17.6.1.2 C++20 headers
+    # C++20 headers
     'barrier',
     'bit',
     'compare',
@@ -536,7 +536,17 @@ _CPP_HEADERS = frozenset([
     'stop_token',
     'syncstream',
     'version',
-    # 17.6.1.2 C++ headers for C library facilities
+    # C++23 headers
+    'expected',
+    'flat_map',
+    'flat_set',
+    'generator',
+    'mdspan',
+    'print',
+    'spanstream',
+    'stacktrace',
+    'stdfloat',
+    # C++ headers for C library facilities
     'cassert',
     'ccomplex',
     'cctype',
@@ -597,6 +607,9 @@ _C_HEADERS = frozenset([
     'uchar.h',
     'wchar.h',
     'wctype.h',
+    # C23 headers
+    'stdbit.h',
+    'stdckdint.h',
     # additional POSIX C headers
     'aio.h',
     'arpa/inet.h',
