@@ -5,8 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', 'pypy3.10', '3.10', '3.12']
-      fail-fast: false
+        python-version: ['3.9', 'pypy3.10', '3.11']
 
     steps:
       - name: Checkout
