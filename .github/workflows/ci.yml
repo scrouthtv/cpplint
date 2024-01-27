@@ -1,21 +1,21 @@
 name: Test
 
-on: [push, pull_request_target]
+on: [push, pull_request]
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', 'pypy-3.9']
+        python-version: ['3.9', 'pypy3.10', '3.10', '3.12']
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -26,6 +26,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --upgrade setuptools
           python -m pip install -e .[dev]
-          python -m pip install "tox<4.0.0" "tox-gh-actions<3.0.0"
+          python -m pip install "tox<5.0.0" "tox-gh-actions<4.0.0"
       - name: Test with tox
         run: tox
