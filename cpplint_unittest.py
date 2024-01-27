@@ -2673,6 +2673,39 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('sizeof foo', '')
     self.TestLint('sizeof (foo)', '')
 
+  def testReplaceAlternateTokens(self):
+    assert cpplint.ReplaceAlternateTokens('tor or orc') == 'tor || orc'
+    assert cpplint.ReplaceAlternateTokens('orc or tor') == 'orc || tor'
+    assert cpplint.ReplaceAlternateTokens('tor or (orc)') == 'tor || (orc)'
+    assert cpplint.ReplaceAlternateTokens('tor or(orc)') == 'tor ||(orc)'
+    assert cpplint.ReplaceAlternateTokens('sand and(android)') == \
+                                          'sand &&(android)'
+    assert cpplint.ReplaceAlternateTokens('(sand) and (android)') == \
+                                          '(sand) && (android)'
+    assert cpplint.ReplaceAlternateTokens(' not note') == ' !note'
+    assert cpplint.ReplaceAlternateTokens(')not note') == ')!note'
+    assert cpplint.ReplaceAlternateTokens('(not note') == '(!note'
+    assert cpplint.ReplaceAlternateTokens(' not(note)') == ' !(note)'
+    assert cpplint.ReplaceAlternateTokens(' not (splinot)') == ' !(splinot)'
+    assert cpplint.ReplaceAlternateTokens('tor and orc or android') == \
+                                          'tor && orc || android'
+    assert cpplint.ReplaceAlternateTokens('tor or orc and ands not note') == \
+                                          'tor || orc && ands !note'
+
+  def testSpacingAfterAlternateToken(self):
+    try:
+      cpplint._cpplint_state.AddFilters('-readability/alt_tokens')
+      self.TestLint('if (foo or (bar) or foobar) {', '')
+      self.TestLint('if (foo or (bar)) {', '')
+      self.TestLint('if ((foo) or (bar)) {', '')
+      self.TestLint('if (not foo) {', '')
+      self.TestLint('if (not (foo)) {', '')
+      self.TestLint('if (not(foo)) {', '')
+      self.TestLint('if ((foo)or(bar)) {', 'Missing spaces around ||'
+                    '  [whitespace/operators] [3]')
+    finally:
+      cpplint._cpplint_state.SetFilters('')
+
   def testSpacingBeforeBraces(self):
     self.TestLint('if (foo){', 'Missing space before {'
                   '  [whitespace/braces] [5]')

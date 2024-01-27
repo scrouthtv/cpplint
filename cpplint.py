@@ -824,7 +824,7 @@ _ALT_TOKEN_REPLACEMENT = {
 # False positives include C-style multi-line comments and multi-line strings
 # but those have always been troublesome for cpplint.
 _ALT_TOKEN_REPLACEMENT_PATTERN = re.compile(
-    r'[ =()](' + ('|'.join(_ALT_TOKEN_REPLACEMENT.keys())) + r')(?=[ (]|$)')
+    r'([ =()])(' + ('|'.join(_ALT_TOKEN_REPLACEMENT.keys())) + r')([ (]|$)')
 
 
 # These constants define types of headers for use with
@@ -1893,6 +1893,28 @@ def CleanseComments(line):
   return _RE_PATTERN_CLEANSE_LINE_C_COMMENTS.sub('', line)
 
 
+def ReplaceAlternateTokens(line):
+  """Replace any alternate token by its original counterpart.
+
+  In order to comply with the google rule stating that unary operators should
+  never be followed by a space, an exception is made for the 'not' and 'compl'
+  alternate tokens. For these, any trailing space is removed during the
+  conversion.
+
+  Args:
+    line: The line being processed.
+
+  Returns:
+    The line with alternate tokens replaced.
+  """
+  for match in _ALT_TOKEN_REPLACEMENT_PATTERN.finditer(line):
+    token = _ALT_TOKEN_REPLACEMENT[match.group(2)]
+    tail = '' if match.group(2) in ['not', 'compl'] and match.group(3) == ' ' \
+           else r'\3'
+    line = re.sub(match.re, r'\1{}{}'.format(token, tail), line, count=1)
+  return line
+
+
 class CleansedLines(object):
   """Holds 4 copies of all lines with different preprocessing applied to them.
 
@@ -1905,16 +1927,17 @@ class CleansedLines(object):
   """
 
   def __init__(self, lines):
+    if '-readability/alt_tokens' in _cpplint_state.filters:
+      for i, line in enumerate(lines):
+        lines[i] = ReplaceAlternateTokens(line)
     self.elided = []
     self.lines = []
     self.raw_lines = lines
     self.num_lines = len(lines)
     self.lines_without_raw_strings = CleanseRawStrings(lines)
-    # # pylint: disable=consider-using-enumerate
-    for linenum in range(len(self.lines_without_raw_strings)):
-      self.lines.append(CleanseComments(
-          self.lines_without_raw_strings[linenum]))
-      elided = self._CollapseStrings(self.lines_without_raw_strings[linenum])
+    for line in self.lines_without_raw_strings:
+      self.lines.append(CleanseComments(line))
+      elided = self._CollapseStrings(line)
       self.elided.append(CleanseComments(elided))
 
   def NumLines(self):
@@ -3646,7 +3669,8 @@ def CheckComment(line, filename, linenum, next_line_start, error):
                 '"// TODO(my_username): Stuff."')
 
         middle_whitespace = match.group(3)
-        # Comparisons made explicit for correctness -- pylint: disable=g-explicit-bool-comparison
+        # Comparisons made explicit for correctness
+        #  -- pylint: disable=g-explicit-bool-comparison
         if middle_whitespace != ' ' and middle_whitespace != '':
           error(filename, linenum, 'whitespace/todo', 2,
                 'TODO(my_username) should be followed by a space')
@@ -4765,7 +4789,7 @@ def CheckAltTokens(filename, clean_lines, linenum, error):
   for match in _ALT_TOKEN_REPLACEMENT_PATTERN.finditer(line):
     error(filename, linenum, 'readability/alt_tokens', 2,
           'Use operator %s instead of %s' % (
-              _ALT_TOKEN_REPLACEMENT[match.group(1)], match.group(1)))
+              _ALT_TOKEN_REPLACEMENT[match.group(2)], match.group(2)))
 
 
 def GetLineWidth(line):
