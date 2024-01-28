@@ -1162,7 +1162,7 @@ class _IncludeState(object):
 
     """
     error_message = (f'Found {self._TYPE_NAMES[header_type]}'
-                     f'after {self._SECTION_NAMES[self._section]}')
+                     f' after {self._SECTION_NAMES[self._section]}')
 
     last_section = self._section
 
@@ -3179,7 +3179,7 @@ class NestingState(object):
             slots = access_match.group(3)
           error(filename, linenum, 'whitespace/indent', 3,
                 f'{access_match.group(2)}{slots}:'
-                f'should be indented +1 space inside {parent}')
+                f' should be indented +1 space inside {parent}')
 
     # Consume braces or semicolons from what's left of the line
     while True:
@@ -4720,7 +4720,7 @@ def CheckCheck(filename, clean_lines, linenum, error):
     # or rhs gets long, the error message might become unreadable.
     error(filename, linenum, 'readability/check', 2,
           f'Consider using {_CHECK_REPLACEMENT[check_macro][operator]}'
-          f'instead of {check_macro}(a {operator} b)')
+          f' instead of {check_macro}(a {operator} b)')
 
 
 def CheckAltTokens(filename, clean_lines, linenum, error):
@@ -5295,7 +5295,8 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
       function_name = re.search(r'\b((?:string)?printf)\s*\(',
                                 line, re.I).group(1)
       error(filename, linenum, 'runtime/printf', 4,
-            f'{function_name}("%%s", {match.group(1)})')
+            'Potential format string bug. Do'
+            f' {function_name}("%s", {match.group(1)}) instead.')
 
   # Check for potential memset bugs like memset(buf, sizeof(buf), 0).
   match = re.search(r'memset\s*\(([^,]*),\s*([^,]*),\s*0\s*\)', line)
@@ -6619,6 +6620,7 @@ def ProcessFile(filename, vlevel, extra_check_functions=None):
         lf_lines.append(linenum + 1)
 
   except IOError:
+    # TODO: Maybe make this have an exit code of 2 after all is done
     _cpplint_state.PrintError(
         f"Skipping input '{filename}': Can't open for reading\n")
     _RestoreFilters()
