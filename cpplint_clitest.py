@@ -57,6 +57,13 @@ def RunShellCommand(cmd, cwd='.'):
                             stdout=stdout_target,
                             stderr=stderr_target)
     out, err = proc.communicate()
+    
+    # Make output system-agnostic, aka support Windows
+    if os.sep == '\\':
+        out, err = out.replace(b'\\', b'/'), err.replace(b'\\', b'/')
+    if os.linesep == '\r\n':
+        out, err = out.replace(b'\r\n', b'\n'), err.replace(b'\r\n', b'\n')
+
     # print(err) # to get the output at time of test
     return (proc.returncode, out, err)
 
