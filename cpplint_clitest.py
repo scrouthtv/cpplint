@@ -57,7 +57,7 @@ def RunShellCommand(cmd, cwd='.'):
                             stdout=stdout_target,
                             stderr=stderr_target)
     out, err = proc.communicate()
-    
+
     # Make output system-agnostic, aka support Windows
     if os.sep == '\\':
         out, err = out.replace(b'\\', b'/'), err.replace(b'\\', b'/')
