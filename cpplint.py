@@ -6377,6 +6377,8 @@ def FlagCxx11Features(filename, clean_lines, linenum, error):
     error(filename, linenum, 'build/c++tr1', 5,
           f"C++ TR1 headers such as <{include.group(1)}> are unapproved.")
 
+  # TODO: Figure out which of these headers are actually forbidden
+  # and add <filesystem> somewhere from C++17
   # Flag unapproved C++11 headers.
   if include and include.group(1) in ('cfenv',
                                       'condition_variable',
