@@ -1,4 +1,6 @@
-flake8>=3.6.0
-radon>=2.4.0
-pylint>=1.8.4
-tox>=3.0.0
+# minimal requirements to run python setup.py test
+# 5.x requires python 3.5
+pytest
+pytest-cov
+# freeze versions breaking python 2.7 on travis
+testfixtures
