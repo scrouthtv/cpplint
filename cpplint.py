@@ -5914,7 +5914,26 @@ _HEADERS_MAYBE_TEMPLATES = (
     ('<utility>', ('forward', 'make_pair', 'move', 'swap')),
     )
 
-_RE_PATTERN_STRING = re.compile(r'\bstring\b')
+# Non templated types or global objects
+_HEADERS_TYPES_OR_OBJS = (
+    # String and others are special -- it is a non-templatized type in STL.
+    ('<string>', ('string',)),
+    ('<iostream>', ('cin', 'cout', 'cerr', 'clog', 'wcin', 'wcout',
+                    'wcerr', 'wclog')),
+    ('<cstdio>', ('FILE', 'fpos_t')))
+
+# Non templated functions
+_HEADERS_FUNCTIONS = (
+    ('<cstdio>', ('fopen', 'freopen',
+                  'fclose', 'fflush', 'setbuf', 'setvbuf', 'fread',
+                  'fwrite', 'fgetc', 'getc', 'fgets', 'fputc', 'putc',
+                  'fputs', 'getchar', 'gets', 'putchar', 'puts', 'ungetc',
+                  'scanf', 'fscanf', 'sscanf', 'vscanf', 'vfscanf',
+                  'vsscanf', 'printf', 'fprintf', 'sprintf', 'snprintf',
+                  'vprintf', 'vfprintf', 'vsprintf', 'vsnprintf',
+                  'ftell', 'fgetpos', 'fseek', 'fsetpos',
+                  'clearerr', 'feof', 'ferror', 'perror',
+                  'tmpfile', 'tmpnam'),),)
 
 _re_pattern_headers_maybe_templates = []
 for _header, _templates in _HEADERS_MAYBE_TEMPLATES:
@@ -5945,6 +5964,23 @@ for _header, _templates in _HEADERS_CONTAINING_TEMPLATES:
          _template + '<>',
          _header))
 
+_re_pattern_types_or_objs = []
+for _header, _types_or_objs in _HEADERS_TYPES_OR_OBJS:
+  for _type_or_obj in _types_or_objs:
+    _re_pattern_types_or_objs.append(
+        (re.compile(r'\b' + _type_or_obj + r'\b'),
+            _type_or_obj,
+            _header))
+
+_re_pattern_functions = []
+for _header, _functions in _HEADERS_FUNCTIONS:
+  for _function in _functions:
+    # Match printf(..., ...), but not foo->printf, foo.printf or
+    # 'type::printf()'.
+    _re_pattern_functions.append(
+        (re.compile(r'([^>.]|^)\b' + _function + r'\([^\)]'),
+            _function,
+            _header))
 
 def FilesBelongToSameModule(filename_cc, filename_h):
   """Check if these two filenames belong to the same module.
@@ -6004,34 +6040,6 @@ def FilesBelongToSameModule(filename_cc, filename_h):
   return files_belong_to_same_module, common_path
 
 
-def UpdateIncludeState(filename, include_dict, io=codecs):
-  """Fill up the include_dict with new includes found from the file.
-
-  Args:
-    filename: the name of the header to read.
-    include_dict: a dictionary in which the headers are inserted.
-    io: The io factory to use to read the file. Provided for testability.
-
-  Returns:
-    True if a header was successfully added. False otherwise.
-  """
-  headerfile = None
-  try:
-    with io.open(filename, 'r', 'utf8', 'replace') as headerfile:
-      linenum = 0
-      for line in headerfile:
-        linenum += 1
-        clean_line = CleanseComments(line)
-        match = _RE_PATTERN_INCLUDE.search(clean_line)
-        if match:
-          include = match.group(2)
-          include_dict.setdefault(include, linenum)
-    return True
-  except IOError:
-    return False
-
-
-
 def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
                               io=codecs):
   """Reports for missing stl includes.
@@ -6058,14 +6066,17 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
     if not line or line[0] == '#':
       continue
 
-    # String is special -- it is a non-templatized type in STL.
-    matched = _RE_PATTERN_STRING.search(line)
-    if matched:
-      # Don't warn about strings in non-STL namespaces:
-      # (We check only the first match per line; good enough.)
-      prefix = line[:matched.start()]
-      if prefix.endswith('std::') or not prefix.endswith('::'):
-        required['<string>'] = (linenum, 'string')
+    _re_patterns = []
+    _re_patterns.extend(_re_pattern_types_or_objs)
+    _re_patterns.extend(_re_pattern_functions)
+    for pattern, item, header in _re_patterns:
+      matched = pattern.search(line)
+      if matched:
+        # Don't warn about strings in non-STL namespaces:
+        # (We check only the first match per line; good enough.)
+        prefix = line[:matched.start()]
+        if prefix.endswith('std::') or not prefix.endswith('::'):
+          required[header] = (linenum, item)
 
     for pattern, template, header in _re_pattern_headers_maybe_templates:
       if pattern.search(line):
@@ -6084,45 +6095,9 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
         if prefix.endswith('std::') or not prefix.endswith('::'):
           required[header] = (linenum, template)
 
-  # The policy is that if you #include something in foo.h you don't need to
-  # include it again in foo.cc. Here, we will look at possible includes.
   # Let's flatten the include_state include_list and copy it into a dictionary.
   include_dict = dict([item for sublist in include_state.include_list
                        for item in sublist])
-
-  # Did we find the header for this file (if any) and successfully load it?
-  header_found = False
-
-  # Use the absolute path so that matching works properly.
-  abs_filename = FileInfo(filename).FullName()
-
-  # For Emacs's flymake.
-  # If cpplint is invoked from Emacs's flymake, a temporary file is generated
-  # by flymake and that file name might end with '_flymake.cc'. In that case,
-  # restore original file name here so that the corresponding header file can be
-  # found.
-  # e.g. If the file name is 'foo_flymake.cc', we should search for 'foo.h'
-  # instead of 'foo_flymake.h'
-  abs_filename = re.sub(r'_flymake\.cc$', '.cc', abs_filename)
-
-  # include_dict is modified during iteration, so we iterate over a copy of
-  # the keys.
-  header_keys = list(include_dict.keys())
-  for header in header_keys:
-    (same_module, common_path) = FilesBelongToSameModule(abs_filename, header)
-    fullpath = common_path + header
-    if same_module and UpdateIncludeState(fullpath, include_dict, io):
-      header_found = True
-
-  # If we can't find the header file for a .cc, assume it's because we don't
-  # know where to look. In that case we'll give up as we're not sure they
-  # didn't include it in the .h file.
-  # TODO(unknown): Do a better job of finding .h files so we are confident that
-  # not having the .h file means there isn't one.
-  if not header_found:
-    for extension in GetNonHeaderExtensions():
-      if filename.endswith('.' + extension):
-        return
 
   # All the lines have been processed, report the errors found.
   for required_header_unstripped in sorted(required, key=required.__getitem__):
