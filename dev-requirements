@@ -7,3 +7,4 @@ pylint>=2.11.0
 tox<5.0.0
 tox-gh-actions<4.0.0
 importlib-metadata>=0.12
+setuptools==58.2.0
