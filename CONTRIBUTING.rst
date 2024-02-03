@@ -62,11 +62,11 @@ You can setup your local environment for developing patches for cpplint like thi
     # run a single CLI integration test
     pytest --no-cov cpplint_clitest.py -k testSillySample
     # run all tests
-    ./setup.py test
-    ./setup.py lint
-    ./setup.py ci # all the above
-    ./flake8
-    tox    # all of the above in all python environments
+    pytest
+    pylint cpplint.py
+    flake8
+    # all of the above in all python environments
+    tox
 
 Releasing
 ---------
