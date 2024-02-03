@@ -935,7 +935,7 @@ class CpplintTest(CpplintTestBase):
     code = 'std::vector<int> foo;'
     for extension in ['h', 'hpp', 'hxx', 'h++', 'cuh',
                       'c', 'cc', 'cpp', 'cxx', 'c++', 'cu']:
-      self.assertEquals('Add #include <vector> for vector<>'
+      self.assertEqual('Add #include <vector> for vector<>'
                        '  [build/include_what_you_use] [4]',
                        self.PerformIncludeWhatYouUse(code, 'foo.' + extension))
 
