@@ -2505,13 +2505,13 @@ def CheckHeaderFileIncluded(filename, include_state, error):
   if re.search(_TEST_FILE_SUFFIX, fileinfo.BaseName()):
     return
 
+  first_include = message = None
+  basefilename = filename[0:len(filename) - len(fileinfo.Extension())]
   for ext in GetHeaderExtensions():
-    basefilename = filename[0:len(filename) - len(fileinfo.Extension())]
     headerfile = basefilename + '.' + ext
     if not os.path.exists(headerfile):
       continue
     headername = FileInfo(headerfile).RepositoryName()
-    first_include = None
     include_uses_unix_dir_aliases = False
     for section_list in include_state.include_list:
       for f in section_list:
@@ -2527,6 +2527,7 @@ def CheckHeaderFileIncluded(filename, include_state, error):
     if include_uses_unix_dir_aliases:
       message += ". Relative paths like . and .. are not allowed."
 
+  if message:
     error(filename, first_include, 'build/include', 5, message)
 
 
