@@ -1,6 +1,6 @@
 # requirements to run development steps
 
-# also change in tox.ini, gitlab/ci.yml
+# also change in tox.ini
 flake8>=4.0.1
 flake8-polyfill
 pylint>=2.11.0
