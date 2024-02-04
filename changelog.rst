@@ -7,7 +7,7 @@ Changelog
 A bunch of long-overdue modernizations of the codebase!
 
 * Python 2 is no longer supported. Python 3.7 and 3.12 support was added, courtesy of @jayvdb
-  * We still have yet to switch from the old setup.py distribution mechanism, so we're staying on an old version of setuptools for now. As a result of all this, setup.py's lint subcommand was removed
+  * As a result of all this, setup.py's lint subcommand was removed. Please run the commands directly instead.
 * NOLINT and NOLINTNEXTLINE comments now support a comma-separated list of categories, courtesy of @n3world (https://github.com/cpplint/cpplint/pull/220)
 * The `--filter` option can now be only applied to a specific file or even a specific line through utilizing colons, e.g. `-filter=-whitespace:foo.h,+whitespace/braces:foo.h:418`. Courtesy of @PhilLab (https://github.com/cpplint/cpplint/pull/171)
 * NOLINT and NOLINTNEXTLINE will now ignore categories known to be from clang-tidy thanks to @xatier (https://github.com/cpplint/cpplint/pull/231)

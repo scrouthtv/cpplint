@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 from setuptools import setup
-import cpplint as cpplint
+import cpplint
 
 # some pip versions bark on comments (e.g. on travis)
 def read_without_comments(filename):

@@ -1,5 +1,7 @@
-# minimal requirements to run python setup.py test
-# 5.x requires python 3.5
+# requirements for testing steps
+tox<5.0.0
+
+# also change in tox.ini
 pytest
 pytest-cov
 testfixtures

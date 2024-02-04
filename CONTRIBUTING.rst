@@ -76,11 +76,11 @@ The release process first prepares the documentation, then publishes to testpypi
     vi changelog.rst # log changes
     git add cpplint.py changelog.rst
     git commit -m "Releasing x.y.z"
-    # test-release (on env by mkvirtualenv -p /usr/bin/python3)
-    pip install --upgrade wheel twine
+    # Build
+    pip install --upgrade build wheel twine
     rm -rf dist
+    python -m build --sdist --wheel
     # Test release, requires account on testpypi
-    python3 setup.py sdist bdist_wheel
     twine upload --repository testpypi dist/*
     # ... Check website and downloads from https://test.pypi.org/project/cpplint/
     # Actual release
