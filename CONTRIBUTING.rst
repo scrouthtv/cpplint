@@ -1,5 +1,6 @@
+******************
 Contributing guide
-==================
+******************
 
 Thanks for your interest in contributing to cpplint.
 
@@ -23,13 +24,13 @@ Non-Goals:
 
 
 Development
------------
+===========
 
-For many tasks, it is okay to just develop using a single installed python version. But if you need to test/debug the project in multiple python versions, you need to install those versions::
+For many tasks, it is okay to just develop using a single installed python version. But if you need to test/debug the project in multiple python versions, you need to install those versions:
 
 1. (Optional) Install multiple python versions
 
-   1. (Optional) Install [pyenv](https://github.com/pyenv/pyenv-installer) to manage python versions
+   1. (Optional) Install `pyenv <https://github.com/pyenv/pyenv-installer>`_ to manage python versions
    2. (Optional) Using pyenv, install the python versions used in testing::
 
         pyenv install 2.7.16
@@ -37,7 +38,7 @@ For many tasks, it is okay to just develop using a single installed python versi
         # ...
         pyenv local 2.7.16 3.6.8 ...
 
-It may be okay to run and test python against locally installed libraries, but if you need to have a consistent build, it is recommended to manage your environment using virtualenv: [virtualenv](https://virtualenv.pypa.io/en/latest/ ), [virtualenvwrapper](https://pypi.org/project/virtualenvwrapper/ ):
+It may be okay to run and test python against locally installed libraries, but if you need to have a consistent build, it is recommended to manage your environment using virtualenv: `virtualenv <https://virtualenv.pypa.io/en/latest/>`_, `virtualenvwrapper <https://pypi.org/project/virtualenvwrapper/>`_::
 
     mkvirtualenv cpplint [-p /usr/bin/python3]
     pip install .[dev]
@@ -47,9 +48,15 @@ Alternatively, you can locally install patches like this::
     pip install -e .[dev]
     # for usage without virtualenv, add --user
 
-You can test your changes under your local python environment by running the tests and lints below::
+.. _testing:
+
+Testing
+-------
+
+You can test your changes under your local python environment by running the tests and lints below:
 
 .. code-block:: bash
+
     # install test requirements
     pip install .[test]
     # run a single test
@@ -65,9 +72,9 @@ You can test your changes under your local python environment by running the tes
 Alternatively, you can run `tox` to automatically run all tests and lints. Use `-e ` followed by the python runner and version (which you must have installed) to automatically generate the testing environment and run the above tests and lints in it. For example, `tox -e py39` does the steps in Python 3.9, `tox -e py312` does the steps in Python 3.12, and `tox -e pypy3` does the steps using the latest version of the pypy interpreter.
 
 Releasing
----------
+=========
 
-The release process first prepares the documentation, then publishes to testpypi to verify, then releases to real pypi. Testpypi acts like real pypi, so broken releases cannot be deleted. For a typical bugfixing release, no special issue on testpypi is expected (but it's still good practice). The commands are documented below, and assume you've went through the steps documented under :ref:`Development`.
+The release process first prepares the documentation, then publishes to testpypi to verify, then releases to real pypi. Testpypi acts like real pypi, so broken releases cannot be deleted. For a typical bugfixing release, no special issue on testpypi is expected (but it's still good practice). The commands are documented below, and assume you've went through the testing steps above.
 
 .. code-block:: bash
 
@@ -91,7 +98,7 @@ The release process first prepares the documentation, then publishes to testpypi
 After releasing, it is be good practice to comment on completed GitHub issues to notify authors.
 
 Catching up with Upstream
--------------------------
+=========================
 
 For maintainers, it is a regular duty to look at what cpplint changes were merged upstream and include them in this fork (though these updates happen rarely).
 

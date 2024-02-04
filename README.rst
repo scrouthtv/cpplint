@@ -1,5 +1,6 @@
+#####################################
 cpplint - static code checker for C++
-=====================================
+#####################################
 
 .. image:: https://img.shields.io/pypi/v/cpplint.svg
     :target: https://pypi.python.org/pypi/cpplint
@@ -32,7 +33,6 @@ Also see discussion here https://github.com/google/styleguide/pull/528.
 Installation
 ============
 
-
 To install cpplint from PyPI, run:
 
 .. code-block:: bash
@@ -52,7 +52,7 @@ For full usage instructions, run:
     $ cpplint --help
 
 Changes
--------
+=======
 
 The modifications in this fork are minor fixes and cosmetic changes, such as:
 
@@ -67,13 +67,21 @@ The modifications in this fork are minor fixes and cosmetic changes, such as:
 * Support ``#pragma once`` as an alternative to header include guards
 * ... and a few more (most of which are open PRs on upstream)
 
-
 Acknowledgements
-----------------
+================
 
 Thanks to Google Inc. for open-sourcing their in-house tool.
-Thanks to maintainers of the fork
+Thanks to `our contributors <https://github.com/cpplint/cpplint/graphs/contributors>`_.
 
-* `tkruse <https://github.com/tkruse>`_  
-* `mattyclarkson <https://github.com/mattyclarkson>`_
-* `theandrewdavis <https://github.com/theandrewdavis>`_
+Maintainers
+-----------
+
+* `@aaronliu0130 <https://github.com/aaronliu0130>`_
+* `@jayvdb <https://github.com/jayvdb>`_
+
+Former
+^^^^^^
+
+* `@tkruse <https://github.com/tkruse>`_
+* `@mattyclarkson <https://github.com/mattyclarkson>`_
+* `@theandrewdavis <https://github.com/theandrewdavis>`_
