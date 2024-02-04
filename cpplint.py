@@ -131,6 +131,14 @@ Syntax: cpplint.py [--verbose=#] [--output=emacs|eclipse|vs7|junit|sed|gsed]
       To see a list of all the categories used in cpplint, pass no arg:
          --filter=
 
+      Filters can directly be limited to files and also line numbers. The
+      syntax is category:file:line , where line is optional. The filter limitation
+      works for both + and - and can be combined with ordinary filters:
+
+      Examples: --filter=-whitespace:foo.h,+whitespace/braces:foo.h
+                --filter=-whitespace,-runtime/printf:foo.h:14,+runtime/printf_format:foo.h
+                --filter=-,+build/include_what_you_use:foo.h:321
+
     counting=total|toplevel|detailed
       The total number of errors found is always printed. If
       'toplevel' is provided, then the count of errors in each of
@@ -1649,7 +1657,7 @@ class FileInfo(object):
     return _IsSourceExtension(self.Extension()[1:])
 
 
-def _ShouldPrintError(category, confidence, linenum):
+def _ShouldPrintError(category, confidence, filename, linenum):
   """If confidence >= verbose, category passes filter and is not suppressed."""
 
   # There are three ways we might decide not to print an error message:
@@ -1663,11 +1671,16 @@ def _ShouldPrintError(category, confidence, linenum):
 
   is_filtered = False
   for one_filter in _Filters():
+    filter_cat, filter_file, filter_line = _ParseFilterSelector(one_filter[1:])
+    category_match = category.startswith(filter_cat)
+    file_match = filter_file == "" or filter_file == filename
+    line_match = filter_line == linenum or filter_line == -1
+
     if one_filter.startswith('-'):
-      if category.startswith(one_filter[1:]):
+      if category_match and file_match and line_match:
         is_filtered = True
     elif one_filter.startswith('+'):
-      if category.startswith(one_filter[1:]):
+      if category_match and file_match and line_match:
         is_filtered = False
     else:
       assert False  # should have been checked for in SetFilter.
@@ -1699,7 +1712,7 @@ def Error(filename, linenum, category, confidence, message):
       and 1 meaning that it could be a legitimate construct.
     message: The error message.
   """
-  if _ShouldPrintError(category, confidence, linenum):
+  if _ShouldPrintError(category, confidence, filename, linenum):
     _cpplint_state.IncrementErrorCount(category)
     if _cpplint_state.output_format == 'vs7':
       _cpplint_state.PrintError(f'{filename}({linenum}): error cpplint:'
@@ -6812,6 +6825,32 @@ def ParseArguments(args):
 
   filenames.sort()
   return filenames
+
+def _ParseFilterSelector(parameter):
+  """Parses the given command line parameter for file- and line-specific
+  exclusions.
+  readability/casting:file.cpp
+  readability/casting:file.cpp:43
+
+  Args:
+    parameter: The parameter value of --filter
+
+  Returns:
+    [category, filename, line].
+    Category is always given.
+    Filename is either a filename or empty if all files are meant.
+    Line is either a line in filename or -1 if all lines are meant.
+  """
+  colon_pos = parameter.find(":")
+  if colon_pos == -1:
+    return parameter, "", -1
+  category = parameter[:colon_pos]
+  second_colon_pos = parameter.find(":", colon_pos + 1)
+  if second_colon_pos == -1:
+    return category, parameter[colon_pos + 1:], -1
+  else:
+    return category, parameter[colon_pos + 1: second_colon_pos], \
+      int(parameter[second_colon_pos + 1:])
 
 def _ExpandDirectories(filenames):
   """Searches a list of filenames and replaces directories in the list with

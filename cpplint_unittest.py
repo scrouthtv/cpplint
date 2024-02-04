@@ -66,13 +66,13 @@ class ErrorCollector(object):
     self._errors = []
     cpplint.ResetNolintSuppressions()
 
-  def __call__(self, unused_filename, linenum,
+  def __call__(self, filename, linenum,
                category, confidence, message):
     self._assert_fn(category in self._ERROR_CATEGORIES,
                     'Message "%s" has category "%s",'
                     ' which is not in _ERROR_CATEGORIES' % (message, category))
     self._SEEN_ERROR_CATEGORIES[category] = 1
-    if cpplint._ShouldPrintError(category, confidence, linenum):
+    if cpplint._ShouldPrintError(category, confidence, filename, linenum):
       self._errors.append('%s  [%s] [%d]' % (message, category, confidence))
 
   def Results(self):
@@ -4358,6 +4358,55 @@ class CpplintTest(CpplintTestBase):
     finally:
       cpplint._cpplint_state.filters = old_filters
       cpplint._DEFAULT_FILTERS = default_filters
+
+  def testFileSpecificFilter(self):
+    old_filters = cpplint._cpplint_state.filters
+    try:
+      test_code = """
+                  class Foo {
+                    Foo(int f)
+                    {
+                    }
+                  };"""
+      cpplint._cpplint_state.SetFilters('')
+      self.TestMultiLineLint(
+          test_code,
+          ['Single-parameter constructors should be marked explicit.'
+          '  [runtime/explicit] [5]',
+          '{ should almost always be at the end of the previous line'
+          '  [whitespace/braces] [4]']
+          )
+
+      cpplint._cpplint_state.SetFilters('-runtime/explicit:foo.h')
+      self.TestMultiLineLint(
+          test_code,
+          '{ should almost always be at the end of the previous line'
+          '  [whitespace/braces] [4]'
+          )
+
+      cpplint._cpplint_state.SetFilters('-runtime/explicit:foo.h:2')
+      self.TestMultiLineLint(
+          test_code,
+          '{ should almost always be at the end of the previous line'
+          '  [whitespace/braces] [4]'
+          )
+
+      cpplint._cpplint_state.SetFilters('-runtime/explicit:foo.h:14,-whitespace/braces:otherfile.h:3')
+      self.TestMultiLineLint(
+          test_code,
+          ['Single-parameter constructors should be marked explicit.'
+          '  [runtime/explicit] [5]',
+          '{ should almost always be at the end of the previous line'
+          '  [whitespace/braces] [4]']
+          )
+
+      cpplint._cpplint_state.SetFilters('-runtime/explicit:foo.h:2,-whitespace/braces:foo.h:3')
+      self.TestMultiLineLint(
+          test_code,
+          ''
+          )
+    finally:
+      cpplint._cpplint_state.filters = old_filters
 
   def testDuplicateHeader(self):
     error_collector = ErrorCollector(self.assertTrue)
