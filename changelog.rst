@@ -1,11 +1,16 @@
 Changelog
 =========
 
+1.7.0 (Unreleased)
+-----
+
+
+
 1.6.1 (2022-08-20)
 -----
 
 * Fix #195 Fix post increment/decrement operator causing a false positive.
-* Fix #202 .hh files should not be considered sytem headers
+* Fix #202 .hh files should not be considered system headers
 * Fix #207 Python2 incompatibility for loading CPPLINT.cfg file
 * Fix #184 NOLINT(clang-analyzer) comments should not cause warnings
 
@@ -20,7 +25,7 @@ Changelog
 * Fix #172: Added 'size_t' to typecasts detected by CheckCStyleCast
 * Fixed wrong CLI help text: Each filter needs + or -
 * Fix #164: add elif as an exception for CheckSpacingForFunctionCall()
-* Fix google#346: --root option not working on windows due to slashes in path
+* Fix google#346: --root option not working on Windows due to slashes in path
 
 1.5.4 (2020-08-18)
 -----
@@ -40,7 +45,7 @@ Changelog
 * Fix #83, output formats "sed" and "gsed" to auto-fix some issues
 * Fix #92, new category "build/namespaces_headers" for unnamed namespaces in header file
 * Sort list of files before processing
-* Fix #144 Falso positive for indent when using QT macros "signals" and "slots"
+* Fix #144 False positive for indent when using QT macros "signals" and "slots"
 * Fix #76 Parsing of class decorators that also use digits
 * Fix #139 Add message "Relative paths like . and .. are not allowed"
 

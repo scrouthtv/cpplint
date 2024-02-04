@@ -25,10 +25,12 @@ setup(name='cpplint',
       maintainer='cpplint Developers',
       maintainer_email='see_github@nospam.com',
       classifiers=['Programming Language :: Python',
+                   'Programming Language :: Python :: 3.7',
                    'Programming Language :: Python :: 3.8',
                    'Programming Language :: Python :: 3.9',
                    'Programming Language :: Python :: 3.10',
                    'Programming Language :: Python :: 3.11',
+                   'Programming Language :: Python :: 3.12',
                    'Programming Language :: C++',
                    'Development Status :: 5 - Production/Stable',
                    'Environment :: Console',
@@ -37,9 +39,6 @@ setup(name='cpplint',
       description='Automated checker to ensure C++ files follow Google\'s style guide',
       long_description=open('README.rst').read(),
       license='BSD-3-Clause',
-      setup_requires=[
-          "pytest-runner==5.2"
-      ],
       tests_require=test_required,
       # extras_require allow pip install .[dev]
       extras_require={
