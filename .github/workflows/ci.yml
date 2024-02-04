@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Python 3.7 is the highest available for actions/setup-python
+        # Python 3.7 is the lowest available for actions/setup-python
         python-version: ['3.7', 'pypy3.10', '3.12']
       fail-fast: false
 
