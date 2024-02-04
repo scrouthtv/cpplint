@@ -5,25 +5,21 @@ Thanks for your interest in contributing to cpplint.
 
 Any kinds of contributions are welcome: Bug reports, Documentation, Patches.
 
-However cpplint is a bit special as a project because it aims to closely follow what Google does in the upstream repository.
-That means Google remains the source of all major requirements and functionality of cpplint, where as this fork adds extensions to cpplint run on more environments and in more companies.
+However, cpplint is a bit special as a project because it aims to closely follow what Google does in the upstream repository.
+That means Google remains the source of all major requirements and functionality of cpplint whereas this fork adds extensions to cpplint run on more environments and in more companies.
 The difference between this cpplint and Google should remain so small that anyone can at a glance see there is no added change that could be regarded as a security vulnerability.
 
-Here are some tips to make best use of your time:
-
-1. Feature suggestions should initially be opened at the `upstream repository <https://github.com/google/styleguide>`_, but feel free to open an issue here to and link to the upstream issue.
-
-2. Consider the goals and non-goals of this project:
+Please consider our goals and non-goals below before contributing.
 
 Goals:
 
 * Provides cpplint as a PyPI package for multiple python versions
-* Add a few features and fixes aimed at usages outside Google
+* Add features and fixes aimed at usages outside Google
 
 Non-Goals:
 
 * Become an independent fork adding major features
-* Fix python style issues in cpplint
+* Fix python style issues in cpplint (PRs welcome, but not recommended)
 
 
 Development
@@ -43,37 +39,35 @@ For many tasks, it is okay to just develop using a single installed python versi
 
 It may be okay to run and test python against locally installed libraries, but if you need to have a consistent build, it is recommended to manage your environment using virtualenv: [virtualenv](https://virtualenv.pypa.io/en/latest/ ), [virtualenvwrapper](https://pypi.org/project/virtualenvwrapper/ ):
 
-1. (Optional) Setup a local virtual environment with all necessary tools and libraries::
+    mkvirtualenv cpplint [-p /usr/bin/python3]
+    pip install .[dev]
 
-      mkvirtualenv cpplint [-p /usr/bin/python3]
-      pip install .[dev]
-
-Alternatively you can locally install patches like this::
+Alternatively, you can locally install patches like this::
 
     pip install -e .[dev]
     # for usage without virtualenv, add --user
 
-You can setup your local environment for developing patches for cpplint like this:
+You can test your changes under your local python environment by running the tests and lints below::
 
 .. code-block:: bash
-
+    # install test requirements
+    pip install .[test]
     # run a single test
     pytest --no-cov cpplint_unittest.py -k testExclude
     # run a single CLI integration test
     pytest --no-cov cpplint_clitest.py -k testSillySample
-    # run all tests
+    # run all tests. you don't have to run the above tests separately
     pytest
+    # lint the code
     pylint cpplint.py
     flake8
-    # all of the above in all python environments
-    tox
+
+Alternatively, you can run `tox` to automatically run all tests and lints. Use `-e ` followed by the python runner and version (which you must have installed) to automatically generate the testing environment and run the above tests and lints in it. For example, `tox -e py39` does the steps in Python 3.9, `tox -e py312` does the steps in Python 3.12, and `tox -e pypy3` does the steps using the latest version of the pypy interpreter.
 
 Releasing
 ---------
 
-The release process first prepares the documentation, then publishes to testpypi to verify, then releases to real pypi. Testpypi acts like real pypi, so broken releases cannot be deleted. For a typical bugfixing release, no special issue on testpypi is expected (but it's still good practice).
-
-To release a new version:
+The release process first prepares the documentation, then publishes to testpypi to verify, then releases to real pypi. Testpypi acts like real pypi, so broken releases cannot be deleted. For a typical bugfixing release, no special issue on testpypi is expected (but it's still good practice). The commands are documented below, and assume you've went through the steps documented under :ref:`Development`.
 
 .. code-block:: bash
 
@@ -83,7 +77,7 @@ To release a new version:
     git add cpplint.py changelog.rst
     git commit -m "Releasing x.y.z"
     # test-release (on env by mkvirtualenv -p /usr/bin/python3)
-    pip install --upgrade setuptools wheel twine
+    pip install --upgrade wheel twine
     rm -rf dist
     # Test release, requires account on testpypi
     python3 setup.py sdist bdist_wheel
@@ -94,12 +88,12 @@ To release a new version:
     git tag x.y.z
     git push --tags
 
-After releasing, it is be good practice to comment on github for closed tickets, to notify authors.
+After releasing, it is be good practice to comment on completed GitHub issues to notify authors.
 
 Catching up with Upstream
 -------------------------
 
-For maintainers, it is a regular duty to look at what cpplint changes were merged upstream, to include them in this fork (though these updates happen once per year and less).
+For maintainers, it is a regular duty to look at what cpplint changes were merged upstream and include them in this fork (though these updates happen rarely).
 
 Checkout here and upstream google:
 
