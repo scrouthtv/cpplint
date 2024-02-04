@@ -364,7 +364,31 @@ _LEGACY_ERROR_CATEGORIES = [
 # These prefixes for categories should be ignored since they relate to other
 # tools which also use the NOLINT syntax, e.g. clang-tidy.
 _OTHER_NOLINT_CATEGORY_PREFIXES = [
-    'clang-analyzer',
+    'clang-analyzer-',
+    'abseil-',
+    'altera-',
+    'android-',
+    'boost-',
+    'bugprone-',
+    'cert-',
+    'concurrency-',
+    'cppcoreguidelines-',
+    'darwin-',
+    'fuchsia-',
+    'google-',
+    'hicpp-',
+    'linuxkernel-',
+    'llvm-',
+    'llvmlibc-',
+    'misc-',
+    'modernize-',
+    'mpi-',
+    'objc-',
+    'openmp-',
+    'performance-',
+    'portability-',
+    'readability-',
+    'zircon-',
     ]
 
 # The default state of the category filter. This is overridden by the --filter=
