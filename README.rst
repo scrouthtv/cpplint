@@ -71,6 +71,7 @@ Acknowledgements
 ================
 
 Thanks to Google Inc. for open-sourcing their in-house tool.
+
 Thanks to `our contributors <https://github.com/cpplint/cpplint/graphs/contributors>`_.
 
 Maintainers
