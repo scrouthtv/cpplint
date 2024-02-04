@@ -887,7 +887,7 @@ _repository = None
 # Files to exclude from linting. This is set by the --exclude flag.
 _excludes = None
 
-# Whether to supress all PrintInfo messages, UNRELATED to --quiet flag
+# Whether to suppress all PrintInfo messages, UNRELATED to --quiet flag
 _quiet = False
 
 # The allowed line length of files.
@@ -983,8 +983,11 @@ def ParseNolintSuppressions(filename, raw_line, linenum, error):
           error(filename, linenum, 'readability/nolint', 5,
                 f'Unknown NOLINT error category: {category}')
 
-
 def ProcessGlobalSuppresions(lines):
+  """Deprecated; use ProcessGlobalSuppressions."""
+  ProcessGlobalSuppressions(lines)
+
+def ProcessGlobalSuppressions(lines):
   """Updates the list of global error suppressions.
 
   Parses any lint directives in the file that have global effect.
@@ -1012,7 +1015,7 @@ def IsErrorSuppressedByNolint(category, linenum):
   """Returns true if the specified error category is suppressed on this line.
 
   Consults the global error_suppressions map populated by
-  ParseNolintSuppressions/ProcessGlobalSuppresions/ResetNolintSuppressions.
+  ParseNolintSuppressions/ProcessGlobalSuppressions/ResetNolintSuppressions.
 
   Args:
     category: str, the category of the error.
@@ -6432,7 +6435,7 @@ def ProcessFileData(filename, file_extension, lines, error,
   ResetNolintSuppressions()
 
   CheckForCopyright(filename, lines, error)
-  ProcessGlobalSuppresions(lines)
+  ProcessGlobalSuppressions(lines)
   RemoveMultiLineComments(filename, lines, error)
   clean_lines = CleansedLines(lines)
 
