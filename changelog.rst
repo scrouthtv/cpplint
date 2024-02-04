@@ -4,7 +4,22 @@ Changelog
 1.7.0 (Unreleased)
 -----
 
+A bunch of long-overdue modernizations of the codebase!
 
+* Python 2 and 3.7 are no longer supported. Python 3.12 support was added by @jayvdb (https://github.com/cpplint/cpplint/pull/243)
+  * We still have yet to switch from the old setup.py distribution mechanism, so we're staying on an old version of setuptools for now. As a result of all this, setup.py's lint subcommand was removed
+* NOLINT and NOLINTNEXTLINE comments now support a comma-separated list of categories, courtesy of @n3world (https://github.com/cpplint/cpplint/pull/220)
+* NOLINT and NOLINTNEXTLINE will now ignore categories known to be from clang-tidy thanks to @xatier (https://github.com/cpplint/cpplint/pull/231)
+* Fix behavior with nested source repositories by @groegeorg (https://github.com/cpplint/cpplint/pull/78)
+* build/include-what-you-use no longer supports transitive headers from the header for the current module for parity with the style guide by @aaronliu0130 
+* build/include-what-you-use now supports a plethora of new functions, courtesy of @geoffviola (https://github.com/cpplint/cpplint/pull/94)
+* C++20 headers will no longer be flagged as C headers thanks to @miker2 (https://github.com/cpplint/cpplint/pull/216)
+  * Same goes for C++23 and C23 headers, thanks to @aaronliu0130 (https://github.com/cpplint/cpplint/pull/239)
+* "complex.h" will be treated as the C99 header instead of the legacy C++ header by @tkruse (https://github.com/cpplint/cpplint/pull/219)
+* Usages of the deprecated sre_compile were refectored by @jspricke (https://github.com/cpplint/cpplint/pull/214)
+* Usages of deprecated unittest aliases were refactored by @tirkarthi (https://github.com/cpplint/cpplint/pull/182), @aaronliu0130 and @jayvdb
+* Typos in this changelog, comments and functions were fixed by @jayvdb (https://github.com/cpplint/cpplint/pull/245)
+* %-strings were modernized into f-strings by @aaronliu0130
 
 1.6.1 (2022-08-20)
 -----
