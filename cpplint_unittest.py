@@ -4932,6 +4932,18 @@ class CpplintTest(CpplintTestBase):
         0,
         error_collector.Results().count(expected))
 
+      # Test edge case in which multiple files have the same base name
+      open(os.path.join(test_directory, 'foo.hpp'), 'a').close()
+      cpplint.ProcessFileData(
+        'test/foo.cc', 'cc',
+        [r'#include "foo.hpp"',
+         ''
+         ],
+        error_collector)
+      self.assertEqual(
+        0,
+        error_collector.Results().count(expected))
+
     finally:
       # Restore previous CWD.
       os.chdir(cur_dir)
