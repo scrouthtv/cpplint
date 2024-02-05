@@ -19,6 +19,7 @@ A bunch of long-overdue modernizations of the codebase!
   * Same goes for C++23 and C23 headers, thanks to @aaronliu0130 (https://github.com/cpplint/cpplint/pull/239)
 * "complex.h" will be treated as the C99 header instead of the legacy C++ header by @tkruse (https://github.com/cpplint/cpplint/pull/219)
 * You can now specify the name of the CPPLINT.cfg file through `--config` as long as it is in the same directory, thanks to @gedankenexperimenter (https://github.com/cpplint/cpplint/pull/198)
+* The check for including a source file's header file will now scan all files with the same base name. Thanks to @crogre for figuring out what code needed to be change and @aaronliu0130 for fixing it (https://github.com/cpplint/cpplint/pull/104)
 * Usages of the deprecated sre_compile were refectored by @jspricke (https://github.com/cpplint/cpplint/pull/214)
 * Usages of deprecated unittest aliases were refactored by @tirkarthi (https://github.com/cpplint/cpplint/pull/182), @aaronliu0130 and @jayvdb
 * Typos in this changelog, comments and functions were fixed by @jayvdb (https://github.com/cpplint/cpplint/pull/245), @aaronliu0130 and @tkruse
