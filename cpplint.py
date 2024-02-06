@@ -4000,8 +4000,9 @@ def CheckCommaSpacing(filename, clean_lines, linenum, error):
   # verify that lines contain missing whitespaces, second pass on raw
   # lines to confirm that those missing whitespaces are not due to
   # elided comments.
-  if (re.search(r',[^,\s]', re.sub(r'\boperator\s*,\s*\(', 'F(', line)) and
-      re.search(r',[^,\s]', raw[linenum])):
+  match = re.search(r',[^,\s]', re.sub(r'\b__VA_OPT__\s*\(,\)', '',
+                                       re.sub(r'\boperator\s*,\s*\(', 'F(', line)))
+  if (match and re.search(r',[^,\s]', raw[linenum])):
     error(filename, linenum, 'whitespace/comma', 3,
           'Missing space after ,')
 

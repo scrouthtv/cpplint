@@ -3635,6 +3635,9 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('operator,()', '')
     self.TestLint('operator,(a,b)',
                   'Missing space after ,  [whitespace/comma] [3]')
+    self.TestLint('__VA_OPT__(,)', '')
+    self.TestLint('__VA_OPT__ (,)',
+                  'Extra space before ( in function call  [whitespace/parens] [4]')
 
   def testEqualsOperatorSpacing(self):
     self.TestLint('int tmp= a;',
