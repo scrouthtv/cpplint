@@ -8,7 +8,7 @@ Changelog
 A bunch of long-overdue modernizations of the codebase!
 
 * Python 2 is no longer supported. Python 3.7 and 3.12 support was added, courtesy of @jayvdb
-  * As a result of all this, setup.py's lint subcommand was removed. Please run the commands directly instead.
+   * As a result of all this, setup.py's lint subcommand was removed. Please run the commands directly instead.
 * NOLINT and NOLINTNEXTLINE comments now support a comma-separated list of categories, courtesy of @n3world (https://github.com/cpplint/cpplint/pull/220)
 * The `--filter` option can now be only applied to a specific file or even a specific line through utilizing colons, e.g. `-filter=-whitespace:foo.h,+whitespace/braces:foo.h:418`. Courtesy of @PhilLab (https://github.com/cpplint/cpplint/pull/171)
 * NOLINT and NOLINTNEXTLINE will now ignore categories known to be from clang-tidy thanks to @xatier (https://github.com/cpplint/cpplint/pull/231)
@@ -16,7 +16,7 @@ A bunch of long-overdue modernizations of the codebase!
 * build/include-what-you-use no longer supports transitive headers from the header for the current module for parity with the style guide by @aaronliu0130 
 * build/include-what-you-use now supports a plethora of new functions, courtesy of @geoffviola (https://github.com/cpplint/cpplint/pull/94)
 * C++20 headers will no longer be flagged as C headers thanks to @miker2 (https://github.com/cpplint/cpplint/pull/216)
-  * Same goes for C++23 and C23 headers, thanks to @aaronliu0130 (https://github.com/cpplint/cpplint/pull/239)
+   * Same goes for C++23 and C23 headers, thanks to @aaronliu0130 (https://github.com/cpplint/cpplint/pull/239)
 * "complex.h" will be treated as the C99 header instead of the legacy C++ header by @tkruse (https://github.com/cpplint/cpplint/pull/219)
 * You can now specify the name of the CPPLINT.cfg file through `--config` as long as it is in the same directory, thanks to @gedankenexperimenter (https://github.com/cpplint/cpplint/pull/198)
 * The new __VA_OPT__(,) will now be recognized by the Whitespace linter as a function, courtesy of @elrinor (https://github.com/cpplint/cpplint/pull/237)
@@ -129,13 +129,13 @@ Another cleanup release
 ==================
 
 * Incorporate cpplint updates from google (e5d807c6a0d,  2018-05-03)
-  * Fix the `build/endif_comment` check (https://github.com/google/styleguide/pull/169)
-  * Teach the explicit constructor check about constexpr (#56)
-  * Changed vs7 output format (#57)
-  * Remove presubmit check for DISALLOW_* macros (#54)
-  * add `--quiet` flag as in upstream (https://github.com/google/styleguide/pull/293)
-  * support `--root` argument to run in different folder (https://github.com/google/styleguide/pull/291)
-  * Fix 16bit Unicode issue (https://github.com/google/styleguide/issues/337)
+   * Fix the `build/endif_comment` check (https://github.com/google/styleguide/pull/169)
+   * Teach the explicit constructor check about constexpr (#56)
+   * Changed vs7 output format (#57)
+   * Remove presubmit check for DISALLOW_* macros (#54)
+   * add `--quiet` flag as in upstream (https://github.com/google/styleguide/pull/293)
+   * support `--root` argument to run in different folder (https://github.com/google/styleguide/pull/291)
+   * Fix 16bit Unicode issue (https://github.com/google/styleguide/issues/337)
 
 1.3.0 (2016-07-12)
 ==================
