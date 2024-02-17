@@ -17,7 +17,10 @@ A bunch of long-overdue modernizations of the codebase!
 * build/include-what-you-use now supports a plethora of new functions, courtesy of @geoffviola (https://github.com/cpplint/cpplint/pull/94)
 * C++20 headers will no longer be flagged as C headers thanks to @miker2 (https://github.com/cpplint/cpplint/pull/216)
    * Same goes for C++23 and C23 headers, thanks to @aaronliu0130 (https://github.com/cpplint/cpplint/pull/239)
-* "complex.h" will be treated as the C99 header instead of the legacy C++ header by @tkruse (https://github.com/cpplint/cpplint/pull/219)
+   * "complex.h" will be treated as the C99 header instead of the legacy C++ header by @tkruse (https://github.com/cpplint/cpplint/pull/219)
+   * Many features not blocked in Google's style guide will no longer be erred own thanks to @aaronliu0130
+      * As part of this, the build/c++14 and build/c++tr1 categories were removed.
+      * The filesystem header will now also be blocked, and the build/c++17 category has been added.
 * You can now specify the name of the CPPLINT.cfg file through `--config` as long as it is in the same directory, thanks to @gedankenexperimenter (https://github.com/cpplint/cpplint/pull/198)
 * The new __VA_OPT__(,) will now be recognized by the Whitespace linter as a function, courtesy of @elrinor (https://github.com/cpplint/cpplint/pull/237)
 * The check for including a source file's header file will now scan all files with the same base name. Thanks to @crogre for figuring out what code needed to be changed and @aaronliu0130 for fixing it (https://github.com/cpplint/cpplint/pull/104)
