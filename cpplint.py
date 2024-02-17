@@ -290,8 +290,7 @@ Syntax: cpplint.py [--verbose=#] [--output=emacs|eclipse|vs7|junit|sed|gsed]
 _ERROR_CATEGORIES = [
     'build/class',
     'build/c++11',
-    'build/c++14',
-    'build/c++tr1',
+    'build/c++17',
     'build/deprecated',
     'build/endif_comment',
     'build/explicit_make_pair',
@@ -6383,8 +6382,9 @@ def ProcessLine(filename, file_extension, clean_lines, line,
     for check_fn in extra_check_functions:
       check_fn(filename, clean_lines, line, error)
 
-def FlagCxx11Features(filename, clean_lines, linenum, error):
-  """Flag those c++11 features that we only allow in certain places.
+
+def FlagCxxHeaders(filename, clean_lines, linenum, error):
+  """Flag C++ headers that the styleguide restricts.
 
   Args:
     filename: The name of the current file.
@@ -6396,64 +6396,18 @@ def FlagCxx11Features(filename, clean_lines, linenum, error):
 
   include = re.match(r'\s*#\s*include\s+[<"]([^<"]+)[">]', line)
 
-  # Flag unapproved C++ TR1 headers.
-  if include and include.group(1).startswith('tr1/'):
-    error(filename, linenum, 'build/c++tr1', 5,
-          f"C++ TR1 headers such as <{include.group(1)}> are unapproved.")
-
-  # TODO: Figure out which of these headers are actually forbidden
-  # and add <filesystem> somewhere from C++17
   # Flag unapproved C++11 headers.
   if include and include.group(1) in ('cfenv',
-                                      'condition_variable',
                                       'fenv.h',
-                                      'future',
-                                      'mutex',
-                                      'thread',
-                                      'chrono',
                                       'ratio',
-                                      'regex',
-                                      'system_error',
                                      ):
     error(filename, linenum, 'build/c++11', 5,
           f"<{include.group(1)}> is an unapproved C++11 header.")
 
-  # The only place where we need to worry about C++11 keywords and library
-  # features in preprocessor directives is in macro definitions.
-  if re.match(r'\s*#', line) and not re.match(r'\s*#\s*define\b', line): return
-
-  # These are classes and free functions.  The classes are always
-  # mentioned as std::*, but we only catch the free functions if
-  # they're not found by ADL.  They're alphabetical by header.
-  for top_name in (
-      # type_traits
-      'alignment_of',
-      'aligned_union',
-      ):
-    if re.search(rf'\bstd::{top_name}\b', line):
-      error(filename, linenum, 'build/c++11', 5,
-            (f'std::{top_name} is an unapproved C++11 class or function.  '
-             'Send c-style an example of where it would'
-             ' make your code more readable, and they may let you use it.'))
-
-
-def FlagCxx14Features(filename, clean_lines, linenum, error):
-  """Flag those C++14 features that we restrict.
-
-  Args:
-    filename: The name of the current file.
-    clean_lines: A CleansedLines instance containing the file.
-    linenum: The number of the line to check.
-    error: The function to call with any errors found.
-  """
-  line = clean_lines.elided[linenum]
-
-  include = re.match(r'\s*#\s*include\s+[<"]([^<"]+)[">]', line)
-
-  # Flag unapproved C++14 headers.
-  if include and include.group(1) in ('scoped_allocator', 'shared_mutex'):
-    error(filename, linenum, 'build/c++14', 5,
-          f"<{include.group(1)}> is an unapproved C++14 header.")
+  # filesystem is the only unapproved C++17 header
+  if include and include.group(1) == 'filesystem':
+    error(filename, linenum, 'build/c++17', 5,
+          "<filesystem> is an unapproved C++17 header.")
 
 
 def ProcessFileData(filename, file_extension, lines, error,
@@ -6492,7 +6446,7 @@ def ProcessFileData(filename, file_extension, lines, error,
     ProcessLine(filename, file_extension, clean_lines, line,
                 include_state, function_state, nesting_state, error,
                 extra_check_functions)
-    FlagCxx11Features(filename, clean_lines, line, error)
+    FlagCxxHeaders(filename, clean_lines, line, error)
   nesting_state.CheckCompletedBlocks(filename, error)
 
   CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error)

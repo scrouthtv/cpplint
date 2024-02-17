@@ -5210,7 +5210,7 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('snprintf(fisk, 1, format)',
                   'If you can, use sizeof(fisk) instead of 1 as the 2nd arg '
                   'to snprintf.  [runtime/printf] [3]')
-class Cxx11Test(CpplintTestBase):
+class CxxTest(CpplintTestBase):
 
   def Helper(self, package, extension, lines, count):
     filename = package + '/foo.' + extension
@@ -5232,46 +5232,24 @@ class Cxx11Test(CpplintTestBase):
     error_list = collector.ResultList()
     self.assertEqual(count, len(error_list), error_list)
 
-  def TestCxx11Feature(self, code, expected_error):
+  def TestCxxFeature(self, code, expected_error):
     lines = code.split('\n')
     collector = ErrorCollector(self.assertTrue)
     cpplint.RemoveMultiLineComments('foo.h', lines, collector)
     clean_lines = cpplint.CleansedLines(lines)
-    cpplint.FlagCxx11Features('foo.cc', clean_lines, 0, collector)
+    cpplint.FlagCxxHeaders('foo.cc', clean_lines, 0, collector)
     self.assertEqual(expected_error, collector.Results())
 
   def testBlockedHeaders(self):
-    self.TestCxx11Feature('#include <tr1/regex>',
-                          'C++ TR1 headers such as <tr1/regex> are '
-                          'unapproved.  [build/c++tr1] [5]')
-    self.TestCxx11Feature('#include <mutex>',
-                          '<mutex> is an unapproved C++11 header.'
+    self.TestCxxFeature('#include <ratio>',
+                          '<ratio> is an unapproved C++11 header.'
                           '  [build/c++11] [5]')
-
-  def testBlockedClasses(self):
-    self.TestCxx11Feature('std::alignment_of<T>',
-                          'std::alignment_of is an unapproved '
-                          'C++11 class or function.  Send c-style an example '
-                          'of where it would make your code more readable, '
-                          'and they may let you use it.'
+    self.TestCxxFeature('#include <fenv.h>',
+                          '<fenv.h> is an unapproved C++11 header.'
                           '  [build/c++11] [5]')
-    self.TestCxx11Feature('std::alignment_offer', '')
-    self.TestCxx11Feature('mystd::alignment_of', '')
-    self.TestCxx11Feature('std::binomial_distribution', '')
-
-  def testBlockedFunctions(self):
-    self.TestCxx11Feature('std::alignment_of<int>',
-                          'std::alignment_of is an unapproved '
-                          'C++11 class or function.  Send c-style an example '
-                          'of where it would make your code more readable, '
-                          'and they may let you use it.'
-                          '  [build/c++11] [5]')
-    # Missed because of the lack of "std::".  Compiles because ADL
-    # looks in the namespace of my_shared_ptr, which (presumably) is
-    # std::.  But there will be a lint error somewhere in this file
-    # since my_shared_ptr had to be defined.
-    self.TestCxx11Feature('static_pointer_cast<Base>(my_shared_ptr)', '')
-    self.TestCxx11Feature('std::declval<T>()', '')
+    self.TestCxxFeature('#include <filesystem>',
+                          '<filesystem> is an unapproved C++17 header.'
+                          '  [build/c++17] [5]')
 
   def testExplicitMakePair(self):
     self.TestLint('make_pair', '')
@@ -5287,24 +5265,6 @@ class Cxx11Test(CpplintTestBase):
                   ' construct a pair directly'
                   '  [build/explicit_make_pair] [4]')
     self.TestLint('my_make_pair<int, int>', '')
-
-class Cxx14Test(CpplintTestBase):
-
-  def TestCxx14Feature(self, code, expected_error):
-    lines = code.split('\n')
-    collector = ErrorCollector(self.assertTrue)
-    cpplint.RemoveMultiLineComments('foo.h', lines, collector)
-    clean_lines = cpplint.CleansedLines(lines)
-    cpplint.FlagCxx14Features('foo.cc', clean_lines, 0, collector)
-    self.assertEqual(expected_error, collector.Results())
-
-  def testBlockedHeaders(self):
-    self.TestCxx14Feature('#include <scoped_allocator>',
-                          '<scoped_allocator> is an unapproved C++14 header.'
-                           '  [build/c++14] [5]')
-    self.TestCxx14Feature('#include <shared_mutex>',
-                          '<shared_mutex> is an unapproved C++14 header.'
-                          '  [build/c++14] [5]')
 
 
 class CleansedLinesTest(unittest.TestCase):
