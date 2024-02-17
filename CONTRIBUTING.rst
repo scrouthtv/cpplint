@@ -4,24 +4,13 @@ Contributing guide
 
 Thanks for your interest in contributing to cpplint.
 
-Any kinds of contributions are welcome: Bug reports, Documentation, Patches.
+Any kinds of contributions are welcome: Bug reports, Documentation, Patches. However, here are some contributions you probably shouldn't make:
 
-However, cpplint is a bit special as a project because it aims to closely follow what Google does in the upstream repository.
-That means Google remains the source of all major requirements and functionality of cpplint whereas this fork adds extensions to cpplint run on more environments and in more companies.
-The difference between this cpplint and Google should remain so small that anyone can at a glance see there is no added change that could be regarded as a security vulnerability.
+* Drastic reorganization
+  * Making the code conform to Google's Python style guidelines
+* Features that could be regarded as a security vulnerability
 
-Please consider our goals and non-goals below before contributing.
-
-Goals:
-
-* Provides cpplint as a PyPI package for multiple python versions
-* Add features and fixes aimed at usages outside Google
-
-Non-Goals:
-
-* Become an independent fork adding major features
-* Fix python style issues in cpplint (PRs welcome, but not recommended)
-
+If you need some ideas, you may check out some of the tasks in our `issue tracker <https://github.com/cpplint/cpplint/issues>`_.
 
 Development
 ===========
