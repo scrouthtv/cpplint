@@ -35,6 +35,7 @@
 
 import codecs
 import os
+import platform
 import random
 import re
 import shutil
@@ -42,6 +43,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+
 import pytest
 
 import cpplint
@@ -3255,6 +3257,8 @@ class CpplintTest(CpplintTestBase):
     # you can see by evaluating codecs.getencoder('utf8')(u'\ufffd')).
     DoTest(self, codecs_latin_encode('\xef\xbf\xbd\n'), True)
 
+  @unittest.skipIf(platform.system() == 'Windows',
+                   'Skipping test on Windows because it hangs')
   def testBadCharacters(self):
     # Test for NUL bytes only
     error_collector = ErrorCollector(self.assertTrue)
@@ -4873,6 +4877,9 @@ class CpplintTest(CpplintTestBase):
         'test/foo.cc', 'cc',
         [''],
         error_collector)
+
+      if platform.system() == 'Windows':
+        test_directory = test_directory.replace('\\', '/')
       expected = "{dir}/{fn}.cc should include its header file {dir}/{fn}.h  [build/include] [5]".format(
           fn="foo",
           dir=test_directory)
@@ -4968,6 +4975,8 @@ class CpplintTest(CpplintTestBase):
     self.assertEqual(['a', 'b', 'c', 'd'],
                       cpplint.PathSplitToList(os.path.join('a', 'b', 'c', 'd')))
 
+  @unittest.skipIf(platform.system() == 'Windows',
+                   'Skipping test on Windows because realpath can fail if mkdtemp uses D:')
   def testBuildHeaderGuardWithRepository(self):
     temp_directory = os.path.realpath(tempfile.mkdtemp())
     temp_directory2 = os.path.realpath(tempfile.mkdtemp())

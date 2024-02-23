@@ -31,12 +31,15 @@
 
 """Command Line interface integration test for cpplint.py."""
 
+import glob
 import os
+import platform
 import sys
 import subprocess
 import unittest
 import shutil
 import tempfile
+
 from testfixtures import compare
 
 BASE_CMD = sys.executable + ' ' + os.path.abspath('./cpplint.py ')
@@ -58,6 +61,7 @@ def RunShellCommand(cmd, cwd='.'):
                             stderr=stderr_target)
     out, err = proc.communicate()
 
+    # TODO: These transforms break testing of Windows --output=sed.
     # Make output system-agnostic, aka support Windows
     if os.sep == '\\':
         out, err = out.replace(b'\\', b'/'), err.replace(b'\\', b'/')
@@ -132,8 +136,21 @@ class TemporaryFolderClassSetup(object):
         with open(path, 'rb') as filehandle:
             datalines = filehandle.readlines()
             stdoutLines = int(datalines[2])
+            filenames = datalines[0].decode('utf8').strip()
+            args, _, filenames = filenames.rpartition(" ")
+            if '--output=sed' in args and platform.system() == 'Windows':
+                # TODO: Testing of Windows --output=sed is either broken
+                # by the transforms in `RunShellCommand`.
+                return
+            if '*' in filenames:
+                rel_cwd = os.path.dirname(path)
+                filenames = ' '.join(
+                    filename[len(rel_cwd)+1:]
+                    for filename in glob.glob(rel_cwd + '/' + filenames)
+                )
+            args += ' ' + filenames
             self._runAndCheck(path,
-                              datalines[0].decode('utf8').strip(),
+                              args,
                               int(datalines[1]),
                               [line.decode('utf8').strip() for line in datalines[3:3 + stdoutLines]],
                               [line.decode('utf8').strip() for line in datalines[3 + stdoutLines:]])
