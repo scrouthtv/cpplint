@@ -1,7 +1,7 @@
 # requirements for testing steps
 tox<5.0.0
 
-# also change in tox.ini
 pytest
 pytest-cov
+pytest-timeout
 testfixtures
