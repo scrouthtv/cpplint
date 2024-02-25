@@ -33,7 +33,6 @@
 
 import glob
 import os
-import platform
 import sys
 import subprocess
 import unittest
@@ -44,7 +43,7 @@ from testfixtures import compare
 
 BASE_CMD = sys.executable + ' ' + os.path.abspath('./cpplint.py ')
 
-def RunShellCommand(cmd, cwd='.'):
+def RunShellCommand(cmd: str, args: str, cwd='.'):
     """
     executes a command
     :param cmd: A string to execute.
@@ -54,17 +53,19 @@ def RunShellCommand(cmd, cwd='.'):
     stdout_target = subprocess.PIPE
     stderr_target = subprocess.PIPE
 
-    proc = subprocess.Popen(cmd,
+    proc = subprocess.Popen(cmd + ' ' + args,
                             shell=True,
                             cwd=cwd,
                             stdout=stdout_target,
                             stderr=stderr_target)
     out, err = proc.communicate()
 
-    # TODO: These transforms break testing of Windows --output=sed.
     # Make output system-agnostic, aka support Windows
     if os.sep == '\\':
-        out, err = out.replace(b'\\', b'/'), err.replace(b'\\', b'/')
+        # TODO: Support scenario with multiple folder inputs
+        win_path = (os.path.dirname(args.split(' ')[-1]) + '\\').encode()
+        good_path = win_path.replace(b'\\', b'/')
+        out, err = out.replace(win_path, good_path), err.replace(win_path, good_path)
     if os.linesep == '\r\n':
         out, err = out.replace(b'\r\n', b'\n'), err.replace(b'\r\n', b'\n')
 
@@ -75,7 +76,7 @@ def RunShellCommand(cmd, cwd='.'):
 class UsageTest(unittest.TestCase):
 
     def testHelp(self):
-        (status, out, err) = RunShellCommand(BASE_CMD + ' --help')
+        (status, out, err) = RunShellCommand(BASE_CMD, '--help')
         self.assertEqual(0, status)
         self.assertEqual(b'', out)
         self.assertTrue(err.startswith(b'\nSyntax: cpplint'))
@@ -138,10 +139,6 @@ class TemporaryFolderClassSetup(object):
             stdoutLines = int(datalines[2])
             filenames = datalines[0].decode('utf8').strip()
             args, _, filenames = filenames.rpartition(" ")
-            if '--output=sed' in args and platform.system() == 'Windows':
-                # TODO: Testing of Windows --output=sed is either broken
-                # by the transforms in `RunShellCommand`.
-                return
             if '*' in filenames:
                 rel_cwd = os.path.dirname(path)
                 filenames = ' '.join(
@@ -164,11 +161,11 @@ class TemporaryFolderClassSetup(object):
             expected_err
     ):
         rel_cwd = os.path.dirname(definition_file)
-        cmd = BASE_CMD + self.get_extra_command_args(rel_cwd) + args
+        cmd = BASE_CMD + self.get_extra_command_args(rel_cwd)
         cwd = os.path.join(self._root, rel_cwd)
         # command to reproduce, do not forget first two lines have special meaning
-        print("\ncd " + cwd + " && " + cmd + " 2> <filename>")
-        (status, out, err) = RunShellCommand(cmd, cwd)
+        print("\ncd " + cwd + " && " + cmd + ' '  + args + " 2> <filename>")
+        (status, out, err) = RunShellCommand(cmd, args, cwd)
         self.assertEqual(expected_status, status, 'bad command status %s' % status)
         prefix = 'Failed check in %s comparing to %s for command: %s' % (cwd, definition_file, cmd)
         compare('\n'.join(expected_err), err.decode('utf8'), prefix=prefix, show_whitespace=True)
