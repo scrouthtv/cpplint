@@ -130,8 +130,6 @@ class CpplintTestBase(unittest.TestCase):
   def setUp(self):
     # Allow subclasses to cheat os.path.abspath called in FileInfo class.
     self.os_path_abspath_orig = os.path.abspath
-    self.assertEqual = self.assertEqual
-    self.assertTrue = self.assertTrue
 
   def tearDown(self):
     os.path.abspath = self.os_path_abspath_orig
@@ -5283,9 +5281,6 @@ class CxxTest(CpplintTestBase):
 
 class CleansedLinesTest(unittest.TestCase):
 
-  def setUp(self):
-    self.assertEqual = self.assertEqual
-
   def testInit(self):
     lines = ['Line 1',
              'Line 2',
@@ -6022,7 +6017,6 @@ def TrimExtraIndent(text_block):
 class CloseExpressionTest(unittest.TestCase):
 
   def setUp(self):
-    self.assertEqual = self.assertEqual
     self.lines = cpplint.CleansedLines(
         #           1         2         3         4         5
         # 0123456789012345678901234567890123456789012345678901234567890
@@ -6095,7 +6089,6 @@ class NestingStateTest(unittest.TestCase):
   def setUp(self):
     self.nesting_state = cpplint.NestingState()
     self.error_collector = ErrorCollector(self.assertTrue)
-    self.assertEqual = self.assertEqual
 
   def UpdateWithLines(self, lines):
     clean_lines = cpplint.CleansedLines(lines)
@@ -6478,7 +6471,6 @@ class QuietTest(unittest.TestCase):
     self.python_executable = sys.executable or 'python'
     self.cpplint_test_h = os.path.join(self.this_dir_path,
                                        'cpplint_test_header.h')
-    self.assertEqual = self.assertEqual
     open(self.cpplint_test_h, 'w').close()
 
   def tearDown(self):
