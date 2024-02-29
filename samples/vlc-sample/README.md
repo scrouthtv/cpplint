@@ -1,3 +1,1 @@
-# VLC sample
-
-code taken for regression testing from https://github.com/videolan/vlc
+Code under src/ taken from https://github.com/videolan/vlc, licensed under the GPL2.

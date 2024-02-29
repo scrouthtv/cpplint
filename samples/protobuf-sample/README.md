@@ -1,3 +1,1 @@
-# VLC sample
-
-code taken for regression testing from https://github.com/protocolbuffers/protobuf
+Code under src/ taken from https://github.com/protocolbuffers/protobuf, licensed under the BSD 3-clause.

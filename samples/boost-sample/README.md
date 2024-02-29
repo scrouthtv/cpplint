@@ -1,3 +1,1 @@
-# VLC sample
-
-code taken for regression testing from https://github.com/boostorg
+Code under include/ and src/ taken from https://github.com/boostorg, licensed under the Boost license.
