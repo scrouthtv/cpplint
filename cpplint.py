@@ -5989,7 +5989,7 @@ for _header, _templates in _HEADERS_MAYBE_TEMPLATES:
     # Match max<type>(..., ...), max(..., ...), but not foo->max, foo.max or
     # 'type::max()'.
     _re_pattern_headers_maybe_templates.append(
-        (re.compile(r'[^>.]\b' + _template + r'(<.*?>)?\([^\)]'),
+        (re.compile(r'((\bstd::)|[^>.:])\b' + _template + r'(<.*?>)?\([^\)]'),
             _template,
             _header))
 # Match set<type>, but not foo->set<type>, foo.set<type>

@@ -1052,7 +1052,12 @@ class CpplintTest(CpplintTestBase):
         '[build/include_what_you_use] [4]')
     self.TestIncludeWhatYouUse(
         """#include "base/foobar.h"
-           bool foobar = min_element(a.begin(), a.end());
+           boost::range::transform(input, std::back_inserter(output), square);
+        """,
+        '') # Avoid false positives on transform in other namespaces.
+    self.TestIncludeWhatYouUse(
+        """#include "base/foobar.h"
+           bool foobar = std::min_element(a.begin(), a.end());
         """,
         'Add #include <algorithm> for min_element  '
         '[build/include_what_you_use] [4]')
