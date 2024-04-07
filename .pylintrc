@@ -1,6 +1,6 @@
 [BASIC]
 include-naming-hint=yes
-method-rgx=[A-Z_][A-Za-z0-9]{2,49}$|__init__
+method-rgx=[A-Z_][A-Za-z0-9]{2,49}$|__init__|__str__|__contains__
 function-rgx=[A-Z_][A-Za-z0-9]{2,49}$|main
 const-rgx=[a-zA-Z_][A-Za-z0-9_]{2,49}$
 variable-rgx=[a-z_][a-z0-9_]{0,49}$

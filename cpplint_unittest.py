@@ -583,6 +583,97 @@ class CpplintTest(CpplintTestBase):
                              ''],
                             error_collector)
     self.assertEqual('', error_collector.Results())
+    # NOLINTBEGIN and silences all warnings after it
+    error_collector = ErrorCollector(self.assertTrue)
+    cpplint.ProcessFileData('test.cc', 'cc',
+                            ['// Copyright 2014 Your Company.',
+                             '// NOLINTBEGIN',
+                             'long a = (int64) 65;'
+                             'long a = 65;',
+                             '//  ./command' + (' -verbose' * 80)],
+                            error_collector)
+    self.assertEqual('', error_collector.Results())
+    error_collector = ErrorCollector(self.assertTrue)
+    cpplint.ProcessFileData('test.cc', 'cc',
+                            ['// Copyright 2014 Your Company.',
+                             '// NOLINTBEGIN(*)',
+                             'long a = (int64) 65;'
+                             'long a = 65;',
+                             '//  ./command' + (' -verbose' * 80)],
+                            error_collector)
+    self.assertEqual('', error_collector.Results())
+    # NOLINTEND will show warnings after that point
+    error_collector = ErrorCollector(self.assertTrue)
+    cpplint.ProcessFileData('test.cc', 'cc',
+                            ['// Copyright 2014 Your Company.',
+                             '// NOLINTBEGIN',
+                             'long a = (int64) 65;'
+                             'long a = 65;',
+                             '// NOLINTEND',
+                             '//  ./command' + (' -verbose' * 80),
+                             ''],
+                            error_collector)
+    self.assertEqual('Lines should be <= 80 characters long  '
+                      '[whitespace/line_length] [2]', error_collector.Results())
+    # NOLINTBEGIN(category) silences category warnings after it
+    error_collector = ErrorCollector(self.assertTrue)
+    cpplint.ProcessFileData('test.cc', 'cc',
+                            ['// Copyright 2014 Your Company.',
+                             '// NOLINTBEGIN(readability/casting,runtime/int)',
+                             'long a = (int64) 65;',
+                             'long a = 65;',
+                             '//  ./command' + (' -verbose' * 80),
+                             '// NOLINTEND',
+                             ''],
+                            error_collector)
+    self.assertEqual('Lines should be <= 80 characters long  '
+                      '[whitespace/line_length] [2]',
+                      error_collector.Results())
+    # NOLINTEND(category) will generate an error that categories are not supported
+    error_collector = ErrorCollector(self.assertTrue)
+    cpplint.ProcessFileData('test.cc', 'cc',
+                            ['// Copyright 2014 Your Company.',
+                             '// NOLINTBEGIN(readability/casting,runtime/int)',
+                             'long a = (int64) 65;',
+                             'long a = 65;',
+                             '// NOLINTEND(readability/casting)',
+                             ''],
+                            error_collector)
+    self.assertEqual('NOLINT categories not supported in block END: readability/casting  '
+                      '[readability/nolint] [5]',
+                      error_collector.Results())
+    # nested NOLINTBEGIN is not allowed
+    error_collector = ErrorCollector(self.assertTrue)
+    cpplint.ProcessFileData('test.cc', 'cc',
+                            ['// Copyright 2014 Your Company.',
+                             '// NOLINTBEGIN(readability/casting,runtime/int)',
+                             'long a = (int64) 65;',
+                             '// NOLINTBEGIN(runtime/int)',
+                             'long a = 65;',
+                             '// NOLINTEND(*)',
+                             ''],
+                            error_collector)
+    self.assertEqual('NONLINT block already defined on line 2  '
+                      '[readability/nolint] [5]', error_collector.Results())
+    # error if NOLINGBEGIN is not ended
+    error_collector = ErrorCollector(self.assertTrue)
+    cpplint.ProcessFileData('test.cc', 'cc',
+                            ['// Copyright 2014 Your Company.',
+                             '// NOLINTBEGIN(readability/casting,runtime/int)',
+                             'long a = (int64) 65;',
+                             'long a = 65;',
+                             ''],
+                            error_collector)
+    self.assertEqual('NONLINT block never ended  [readability/nolint] [5]', error_collector.Results())
+    # error if unmatched NOLINTEND
+    self.TestLint(
+        '// NOLINTEND',
+        'Not in a NOLINT block  '
+        '[readability/nolint] [5]')
+    self.TestLint(
+        '// NOLINTEND(*)',
+        'Not in a NOLINT block  '
+        '[readability/nolint] [5]')
 
   # Test Variable Declarations.
   def testVariableDeclarations(self):

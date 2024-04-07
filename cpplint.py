@@ -42,6 +42,7 @@ same line, but it is far from perfect (in either direction).
 """
 
 import codecs
+import collections
 import copy
 import getopt
 import glob
@@ -88,7 +89,11 @@ Syntax: cpplint.py [--verbose=#] [--output=emacs|eclipse|vs7|junit|sed|gsed]
   To suppress false-positive errors of certain categories, add a
   'NOLINT(category[, category...])' comment to the line.  NOLINT or NOLINT(*)
   suppresses errors of all categories on that line. To suppress categories
-  on the next line use NOLINTNEXTLINE instead of NOLINT.
+  on the next line use NOLINTNEXTLINE instead of NOLINT. To suppress errors in
+  a block of code 'NOLINTBEGIN(category[, category...])' comment to a line at
+  the start of the block and to end the block add a comment with 'NOLINTEND'.
+  NOLINT blocks are inclusive so any statements on the same line as a BEGIN
+  or END will have the error suppression applied.
 
   The files passed in will be linted; at least one file must be provided.
   Default linted extensions are %s.
@@ -939,9 +944,72 @@ _config_filename = "CPPLINT.cfg"
 # This is set by --headers flag.
 _hpp_headers = set([])
 
-# {str, bool}: a map from error categories to booleans which indicate if the
-# category should be suppressed for every line.
-_global_error_suppressions = {}
+class ErrorSuppressions:
+  """Class to track all error suppressions for cpplint"""
+
+  class LineRange:
+    """Class to represent a range of line numbers for which an error is suppressed"""
+    def __init__(self, begin, end):
+      self.begin = begin
+      self.end = end
+
+    def __str__(self):
+      return f'[{self.begin}-{self.end}]'
+
+    def __contains__(self, obj):
+      return self.begin <= obj <= self.end
+
+    def ContainsRange(self, other):
+      return self.begin <= other.begin and self.end >= other.end
+
+  def __init__(self):
+    self._suppressions = collections.defaultdict(list)
+    self._open_block_suppression = None
+
+  def _AddSuppression(self, category, line_range):
+    suppressed = self._suppressions[category]
+    if not (suppressed and suppressed[-1].ContainsRange(line_range)):
+      suppressed.append(line_range)
+
+  def GetOpenBlockStart(self):
+    """:return: The start of the current open block or `-1` if there is not an open block"""
+    return self._open_block_suppression.begin if self._open_block_suppression else -1
+
+  def AddGlobalSuppression(self, category):
+    """Add a suppression for `category` which is suppressed for the whole file"""
+    self._AddSuppression(category, self.LineRange(0, math.inf))
+
+  def AddLineSuppression(self, category, linenum):
+    """Add a suppression for `category` which is suppressed only on `linenum`"""
+    self._AddSuppression(category, self.LineRange(linenum, linenum))
+
+  def StartBlockSuppression(self, category, linenum):
+    """Start a suppression block for `category` on `linenum`. inclusive"""
+    if self._open_block_suppression is None:
+      self._open_block_suppression = self.LineRange(linenum, math.inf)
+    self._AddSuppression(category, self._open_block_suppression)
+
+  def EndBlockSuppression(self, linenum):
+    """End the current block suppression on `linenum`. inclusive"""
+    if self._open_block_suppression:
+      self._open_block_suppression.end = linenum
+      self._open_block_suppression = None
+
+  def IsSuppressed(self, category, linenum):
+    """:return: `True` if `category` is suppressed for `linenum`"""
+    suppressed = self._suppressions[category] + self._suppressions[None]
+    return any(linenum in lr for lr in suppressed)
+
+  def HasOpenBlock(self):
+    """:return: `True` if a block suppression was started but not ended"""
+    return self._open_block_suppression is not None
+
+  def Clear(self):
+    """Clear all current error suppressions"""
+    self._suppressions.clear()
+    self._open_block_suppression = None
+
+_error_suppressions = ErrorSuppressions()
 
 def ProcessHppHeadersOption(val):
   global _hpp_headers
@@ -1001,19 +1069,38 @@ def ParseNolintSuppressions(filename, raw_line, linenum, error):
     linenum: int, the number of the current line.
     error: function, an error handler.
   """
-  matched = re.search(r'\bNOLINT(NEXTLINE)?\b(\([^)]+\))?', raw_line)
+  matched = re.search(r'\bNOLINT(NEXTLINE|BEGIN|END)?\b(\([^)]+\))?', raw_line)
   if matched:
-    if matched.group(1):
-      suppressed_line = linenum + 1
+    no_lint_type = matched.group(1)
+    if no_lint_type == 'NEXTLINE':
+      def ProcessCategory(category):
+        _error_suppressions.AddLineSuppression(category, linenum + 1)
+    elif no_lint_type == 'BEGIN':
+      if _error_suppressions.HasOpenBlock():
+        error(filename, linenum, 'readability/nolint', 5,
+              f'NONLINT block already defined on line {_error_suppressions.GetOpenBlockStart()}')
+
+      def ProcessCategory(category):
+        _error_suppressions.StartBlockSuppression(category, linenum)
+    elif no_lint_type == 'END':
+      if not _error_suppressions.HasOpenBlock():
+        error(filename, linenum, 'readability/nolint', 5, 'Not in a NOLINT block')
+
+      def ProcessCategory(category):
+        if category is not None:
+          error(filename, linenum, 'readability/nolint', 5,
+                f'NOLINT categories not supported in block END: {category}')
+        _error_suppressions.EndBlockSuppression(linenum)
     else:
-      suppressed_line = linenum
+      def ProcessCategory(category):
+        _error_suppressions.AddLineSuppression(category, linenum)
     categories = matched.group(2)
     if categories in (None, '(*)'):  # => "suppress all"
-      _error_suppressions.setdefault(None, set()).add(suppressed_line)
+      ProcessCategory(None)
     elif categories.startswith('(') and categories.endswith(')'):
       for category in set(map(lambda c: c.strip(), categories[1:-1].split(','))):
         if category in _ERROR_CATEGORIES:
-          _error_suppressions.setdefault(category, set()).add(suppressed_line)
+          ProcessCategory(category)
         elif any(c for c in _OTHER_NOLINT_CATEGORY_PREFIXES if category.startswith(c)):
           # Ignore any categories from other tools.
           pass
@@ -1037,16 +1124,15 @@ def ProcessGlobalSuppressions(lines):
   for line in lines:
     if _SEARCH_C_FILE.search(line):
       for category in _DEFAULT_C_SUPPRESSED_CATEGORIES:
-        _global_error_suppressions[category] = True
+        _error_suppressions.AddGlobalSuppression(category)
     if _SEARCH_KERNEL_FILE.search(line):
       for category in _DEFAULT_KERNEL_SUPPRESSED_CATEGORIES:
-        _global_error_suppressions[category] = True
+        _error_suppressions.AddGlobalSuppression(category)
 
 
 def ResetNolintSuppressions():
   """Resets the set of NOLINT suppressions to empty."""
-  _error_suppressions.clear()
-  _global_error_suppressions.clear()
+  _error_suppressions.Clear()
 
 
 def IsErrorSuppressedByNolint(category, linenum):
@@ -1059,12 +1145,10 @@ def IsErrorSuppressedByNolint(category, linenum):
     category: str, the category of the error.
     linenum: int, the current line number.
   Returns:
-    bool, True iff the error should be suppressed due to a NOLINT comment or
-    global suppression.
+    bool, True iff the error should be suppressed due to a NOLINT comment,
+    block suppression or global suppression.
   """
-  return (_global_error_suppressions.get(category, False) or
-          linenum in _error_suppressions.get(category, set()) or
-          linenum in _error_suppressions.get(None, set()))
+  return _error_suppressions.IsSuppressed(category, linenum)
 
 
 def _IsSourceExtension(s):
@@ -1696,9 +1780,9 @@ def Error(filename, linenum, category, confidence, message):
   that is, how certain we are this is a legitimate style regression, and
   not a misidentification or a use that's sometimes justified.
 
-  False positives can be suppressed by the use of
-  "cpplint(category)"  comments on the offending line.  These are
-  parsed into _error_suppressions.
+  False positives can be suppressed by the use of "NOLINT(category)"
+  comments, NOLINTNEXTLINE or in blocks started by NOLINTBEGIN.  These
+  are parsed into _error_suppressions.
 
   Args:
     filename: The name of the file containing the error.
@@ -6447,6 +6531,9 @@ def ProcessFileData(filename, file_extension, lines, error,
                 include_state, function_state, nesting_state, error,
                 extra_check_functions)
     FlagCxxHeaders(filename, clean_lines, line, error)
+  if _error_suppressions.HasOpenBlock():
+    error(filename, _error_suppressions.GetOpenBlockStart(), 'readability/nolint', 5,
+          'NONLINT block never ended')
   nesting_state.CheckCompletedBlocks(filename, error)
 
   CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error)
