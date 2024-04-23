@@ -22,8 +22,10 @@ A bunch of long-overdue modernizations of the codebase!
    * Many features not blocked in Google's style guide will no longer be erred own thanks to @aaronliu0130
       * As part of this, the build/c++14 and build/c++tr1 categories were removed.
       * The filesystem header will now also be blocked, and the build/c++17 category has been added.
+* We will no longer bother you if you mark a no-arg constructor as explicit thanks to @markww (https://github.com/cpplint/cpplint/pull/227)
+   * In the same PR, @aaronliu0130 also decreased the verbosity of nagging to mark single-arg constructors as explicit to 4, as the styleguide includes a major exception to this rule that would be very hard to detect.
 * You can now specify the name of the CPPLINT.cfg file through `--config` as long as it is in the same directory, thanks to @gedankenexperimenter (https://github.com/cpplint/cpplint/pull/198)
-* The new __VA_OPT__(,) will now be recognized by the Whitespace linter as a function, courtesy of @elrinor (https://github.com/cpplint/cpplint/pull/237)
+* The new `__VA_OPT__(,)` will now be recognized by the Whitespace linter as a function, courtesy of @elrinor (https://github.com/cpplint/cpplint/pull/237)
 * The check for including a source file's header file will now scan all files with the same base name. Thanks to @crogre for figuring out what code needed to be changed and @aaronliu0130 for fixing it (https://github.com/cpplint/cpplint/pull/104)
 * Usages of the deprecated sre_compile were refectored by @jspricke (https://github.com/cpplint/cpplint/pull/214)
 * Usages of deprecated unittest aliases were refactored by @tirkarthi (https://github.com/cpplint/cpplint/pull/182), @aaronliu0130 and @jayvdb

@@ -2648,8 +2648,8 @@ src/descriptor_unittest.cc:4548:  Closing ) should be moved to the previous line
 src/descriptor_unittest.cc:4984:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
 src/descriptor_unittest.cc:4990:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
 src/descriptor_unittest.cc:5125:  Closing ) should be moved to the previous line  [whitespace/parens] [2]
-src/descriptor_unittest.cc:5929:  Single-parameter constructors should be marked explicit.  [runtime/explicit] [5]
-src/descriptor_unittest.cc:5968:  Single-parameter constructors should be marked explicit.  [runtime/explicit] [5]
+src/descriptor_unittest.cc:5929:  Single-parameter constructors should be marked explicit.  [runtime/explicit] [4]
+src/descriptor_unittest.cc:5968:  Single-parameter constructors should be marked explicit.  [runtime/explicit] [4]
 src/descriptor_unittest.cc:6486:  Redundant blank line at the end of a code block should be deleted.  [whitespace/blank_line] [3]
 src/descriptor_unittest.cc:6437:  Add #include <string> for string  [build/include_what_you_use] [4]
 
