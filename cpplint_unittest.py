@@ -283,16 +283,16 @@ class CpplintTest(CpplintTestBase):
 
     return error_collector.Results()
 
-  def testForwardDeclarationNameSpaceIndentation(self):
+  def testForwardDeclarationNamespaceIndentation(self):
     lines = ['namespace Test {',
              '  class ForwardDeclaration;',
              '}  // namespace Test']
 
     results = self.GetNamespaceResults(lines)
-    self.assertEqual(results, 'Do not indent within a namespace '
-                      ' [runtime/indentation_namespace] [4]')
+    self.assertEqual(results, 'Do not indent within a namespace. '
+                      ' [whitespace/indent_namespace] [4]')
 
-  def testNameSpaceIndentationForClass(self):
+  def testNamespaceIndentationForClass(self):
     lines = ['namespace Test {',
              'void foo() { }',
              '  class Test {',
@@ -300,10 +300,12 @@ class CpplintTest(CpplintTestBase):
              '}  // namespace Test']
 
     results = self.GetNamespaceResults(lines)
-    self.assertEqual(results, 'Do not indent within a namespace '
-                      ' [runtime/indentation_namespace] [4]')
+    self.assertEqual(results, ['Do not indent within a namespace. '
+                      ' [whitespace/indent_namespace] [4]', 
+                      'Do not indent within a namespace. '
+                      ' [whitespace/indent_namespace] [4]'])
 
-  def testNameSpaceIndentationNoError(self):
+  def testNamespaceIndentationNoError(self):
     lines = ['namespace Test {',
              'void foo() { }',
              '}  // namespace Test']
@@ -311,20 +313,15 @@ class CpplintTest(CpplintTestBase):
     results = self.GetNamespaceResults(lines)
     self.assertEqual(results, '')
 
-  def testWhitespaceBeforeNamespace(self):
-    lines = ['  namespace Test {',
-             '  void foo() { }',
-             '  }  // namespace Test']
-
-    results = self.GetNamespaceResults(lines)
-    self.assertEqual(results, '')
-
-  def testFalsePositivesNoError(self):
+  def testNestingInNamespace(self):
     lines = ['namespace Test {',
              'struct OuterClass {',
              '  struct NoFalsePositivesHere;',
              '  struct NoFalsePositivesHere member_variable;',
              '};',
+             'void foo() {',
+             '  const int no_positives_eh = 418;',
+             '}',
              '}  // namespace Test']
 
     results = self.GetNamespaceResults(lines)

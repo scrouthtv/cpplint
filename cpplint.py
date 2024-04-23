@@ -335,7 +335,6 @@ _ERROR_CATEGORIES = [
     'runtime/invalid_increment',
     'runtime/member_string_references',
     'runtime/memset',
-    'runtime/indentation_namespace',
     'runtime/operator',
     'runtime/printf',
     'runtime/printf_format',
@@ -354,6 +353,7 @@ _ERROR_CATEGORIES = [
     'whitespace/ending_newline',
     'whitespace/forcolon',
     'whitespace/indent',
+    'whitespace/indent_namespace',
     'whitespace/line_length',
     'whitespace/newline',
     'whitespace/operators',
@@ -3638,10 +3638,10 @@ def IsBlankLine(line):
 def CheckForNamespaceIndentation(filename, nesting_state, clean_lines, line,
                                  error):
   is_namespace_indent_item = (
-      len(nesting_state.stack) > 1 and
-      nesting_state.stack[-1].check_namespace_indentation and
-      isinstance(nesting_state.previous_stack_top, _NamespaceInfo) and
-      nesting_state.previous_stack_top == nesting_state.stack[-2])
+      len(nesting_state.stack) >= 1 and
+      (isinstance(nesting_state.stack[-1], _NamespaceInfo) or
+      (isinstance(nesting_state.previous_stack_top, _NamespaceInfo)))
+      )
 
   if ShouldCheckNamespaceIndentation(nesting_state, is_namespace_indent_item,
                                      clean_lines.elided, line):
@@ -6370,10 +6370,14 @@ def IsBlockInNameSpace(nesting_state, is_forward_declaration):
     return len(nesting_state.stack) >= 1 and (
       isinstance(nesting_state.stack[-1], _NamespaceInfo))
 
-
-  return (len(nesting_state.stack) > 1 and
-          nesting_state.stack[-1].check_namespace_indentation and
-          isinstance(nesting_state.stack[-2], _NamespaceInfo))
+  if len(nesting_state.stack) >= 1:
+    if isinstance(nesting_state.stack[-1], _NamespaceInfo):
+      return True
+    elif (len(nesting_state.stack) > 1 and
+          isinstance(nesting_state.previous_stack_top, _NamespaceInfo) and
+          isinstance(nesting_state.stack[-2], _NamespaceInfo)):
+      return True
+  return False
 
 
 def ShouldCheckNamespaceIndentation(nesting_state, is_namespace_indent_item,
@@ -6413,8 +6417,8 @@ def CheckItemIndentationInNamespace(filename, raw_lines_no_comments, linenum,
                                     error):
   line = raw_lines_no_comments[linenum]
   if re.match(r'^\s+', line):
-    error(filename, linenum, 'runtime/indentation_namespace', 4,
-          'Do not indent within a namespace')
+    error(filename, linenum, 'whitespace/indent_namespace', 4,
+          'Do not indent within a namespace.')
 
 
 def ProcessLine(filename, file_extension, clean_lines, line,
