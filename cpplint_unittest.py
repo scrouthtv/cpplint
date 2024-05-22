@@ -1249,6 +1249,12 @@ class CpplintTest(CpplintTestBase):
         auto res = map<Bar>();
         """,
         '')
+    # False positive for boost::container::set
+    self.TestIncludeWhatYouUse(
+        """
+        boost::container::set<int> foo;
+        """,
+        '')
 
   def testFilesBelongToSameModule(self):
     f = cpplint.FilesBelongToSameModule

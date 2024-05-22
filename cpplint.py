@@ -6019,7 +6019,7 @@ _HEADERS_CONTAINING_TEMPLATES = (
     ('<memory>', ('allocator', 'make_shared', 'make_unique', 'shared_ptr',
                   'unique_ptr', 'weak_ptr')),
     ('<queue>', ('queue', 'priority_queue',)),
-    ('<set>', ('multiset',)),
+    ('<set>', ('set', 'multiset',)),
     ('<stack>', ('stack',)),
     ('<string>', ('char_traits', 'basic_string',)),
     ('<tuple>', ('tuple',)),
@@ -6072,12 +6072,9 @@ for _header, _templates in _HEADERS_MAYBE_TEMPLATES:
         (re.compile(r'((\bstd::)|[^>.:])\b' + _template + r'(<.*?>)?\([^\)]'),
             _template,
             _header))
-# Match set<type>, but not foo->set<type>, foo.set<type>
-_re_pattern_headers_maybe_templates.append(
-    (re.compile(r'[^>.]\bset\s*\<'),
-        'set<>',
-        '<set>'))
-# Match 'map<type> var' and 'std::map<type>(...)', but not 'map<type>(...)''
+
+# Map is often overloaded. Only check, if it is fully qualified.
+# Match 'std::map<type>(...)', but not 'map<type>(...)''
 _re_pattern_headers_maybe_templates.append(
     (re.compile(r'(std\b::\bmap\s*\<)|(^(std\b::\b)map\b\(\s*\<)'),
         'map<>',
@@ -6088,7 +6085,7 @@ _re_pattern_templates = []
 for _header, _templates in _HEADERS_CONTAINING_TEMPLATES:
   for _template in _templates:
     _re_pattern_templates.append(
-        (re.compile(r'(\<|\b)' + _template + r'\s*\<'),
+        (re.compile(r'((^|(^|\s|((^|\W)::))std::)|[^>.:]\b)' + _template + r'\s*\<'),
          _template + '<>',
          _header))
 
