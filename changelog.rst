@@ -14,8 +14,9 @@ A bunch of long-overdue modernizations of the codebase!
 * NOLINT and NOLINTNEXTLINE comments now support a comma-separated list of categories, courtesy of @n3world (https://github.com/cpplint/cpplint/pull/220)
 * NOLINT and NOLINTNEXTLINE will now ignore categories known to be from clang-tidy thanks to @xatier (https://github.com/cpplint/cpplint/pull/231)
 * Fix behavior with nested source repositories by @groegeorg (https://github.com/cpplint/cpplint/pull/78)
-* build/include-what-you-use no longer supports transitive headers from the header for the current module for parity with the style guide by @aaronliu0130 
+* build/include-what-you-use no longer supports transitive headers from the header for the current module for parity with the style guide by @aaronliu0130
 * build/include-what-you-use now supports a plethora of new functions, courtesy of @geoffviola (https://github.com/cpplint/cpplint/pull/94)
+* build/include-what-you-use will no longer err on similarly-named classes from other namespaces thanks to @geoffviola (https://github.com/cpplint/cpplint/pull/273)
 * Indented functions inside namespaces will now be correctly erred on, courtesy of @Yujinmon (https://github.com/cpplint/cpplint/pull/235)
 * C++20 headers will no longer be flagged as C headers thanks to @miker2 (https://github.com/cpplint/cpplint/pull/216)
    * Same goes for C++23 and C23 headers, thanks to @aaronliu0130 (https://github.com/cpplint/cpplint/pull/239)

@@ -37,6 +37,17 @@ Alternatively, you can locally install patches like this::
     pip install -e .[dev]
     # for usage without virtualenv, add --user
 
+Pull requests
+-------------
+
+When you're finished with a pull request, please:
+
+* add a relevant test case to cpplint_unittest.py
+* add a summary of what your changes do to CHANGELOG.rst
+* specify the problem solved in the pull request
+* make sure that your code passes the tests and lints
+* don't force-push to the branch. These make the commit history messy, and we squash all commits when merging anyways.
+
 .. _testing:
 
 Testing
@@ -49,7 +60,7 @@ You can test your changes under your local python environment by running the tes
     # install test requirements
     pip install .[test]
     # run a single test
-    pytest --no-cov cpplint_unittest.py -k testExclude
+    pytest --no-cov cpplint_unittest.py -k testName
     # run a single CLI integration test
     pytest --no-cov cpplint_clitest.py -k testSillySample
     # run all tests. you don't have to run the above tests separately
@@ -68,9 +79,9 @@ The release process first prepares the documentation, then publishes to testpypi
 .. code-block:: bash
 
     # prepare files for release
-    vi cpplint.py # increment the version
-    vi changelog.rst # log changes
-    git add cpplint.py changelog.rst
+    $EDITOR cpplint.py # increment the version
+    $EDITOR changelog.rst # log changes
+    git add cpplint.py CHANGELOG.rst
     git commit -m "Releasing x.y.z"
     # Build
     pip install --upgrade build wheel twine

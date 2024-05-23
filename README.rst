@@ -67,7 +67,7 @@ Changes
 * JUnit XML output format
 * Overriding repository root auto-detection via --repository
 * Support ``#pragma once`` as an alternative to header include guards
-* ... and `quite a bit <https://github.com/cpplint/cpplint/blob/master/changelog.rst>`_ more
+* ... and `quite a bit <https://github.com/cpplint/cpplint/blob/master/CHANGELOG.rst>`_ more
 
 Acknowledgements
 ================
