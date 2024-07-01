@@ -165,7 +165,6 @@ class CpplintTestBase(unittest.TestCase):
                          error_collector)
       cpplint.CheckForNonStandardConstructs('foo.h', lines, i,
                                             nesting_state, error_collector)
-    nesting_state.CheckCompletedBlocks('foo.h', error_collector)
     return error_collector.Results()
 
   # Similar to PerformMultiLineLint, but calls CheckLanguage instead of
@@ -4582,16 +4581,6 @@ class CpplintTest(CpplintTestBase):
   def testBuildClass(self):
     # Test that the linter can parse to the end of class definitions,
     # and that it will report when it can't.
-    # Use multi-line linter because it performs the ClassState check.
-    self.TestMultiLineLint(
-        'class Foo {',
-        'Failed to find complete declaration of class Foo'
-        '  [build/class] [5]')
-    # Do the same for namespaces
-    self.TestMultiLineLint(
-        'namespace Foo {',
-        'Failed to find complete declaration of namespace Foo'
-        '  [build/namespaces] [5]')
     # Don't warn on forward declarations of various types.
     self.TestMultiLineLint(
         'class Foo;',
@@ -4619,11 +4608,6 @@ class CpplintTest(CpplintTestBase):
         #endif
         };""",
         '')
-    # Test incomplete class
-    self.TestMultiLineLint(
-        'class Foo {',
-        'Failed to find complete declaration of class Foo'
-        '  [build/class] [5]')
 
   def testBuildEndComment(self):
     # The crosstool compiler we currently use will fail to compile the

@@ -149,7 +149,7 @@ Syntax: cpplint.py [--verbose=#] [--output=emacs|eclipse|vs7|junit|sed|gsed]
       'toplevel' is provided, then the count of errors in each of
       the top-level categories like 'build' and 'whitespace' will
       also be printed. If 'detailed' is provided, then a count
-      is provided for each category like 'build/class'.
+      is provided for each category like 'legal/copyright'.
 
     repository=path
       The top level directory of the repository, used to derive the header
@@ -293,7 +293,6 @@ Syntax: cpplint.py [--verbose=#] [--output=emacs|eclipse|vs7|junit|sed|gsed]
 # If you add a new error message with a new category, add it to the list
 # here!  cpplint_unittest.py should tell you if you forget to do this.
 _ERROR_CATEGORIES = [
-    'build/class',
     'build/c++11',
     'build/c++17',
     'build/deprecated',
@@ -373,6 +372,7 @@ _MACHINE_OUTPUTS = [
 # These error categories are no longer enforced by cpplint, but for backwards-
 # compatibility they may still appear in NOLINT comments.
 _LEGACY_ERROR_CATEGORIES = [
+    'build/class',
     'readability/streams',
     'readability/function',
     ]
@@ -3362,26 +3362,6 @@ class NestingState(object):
       if isinstance(classinfo, _ClassInfo):
         return classinfo
     return None
-
-  def CheckCompletedBlocks(self, filename, error):
-    """Checks that all classes and namespaces have been completely parsed.
-
-    Call this when all lines in a file have been processed.
-    Args:
-      filename: The name of the current file.
-      error: The function to call with any errors found.
-    """
-    # Note: This test can result in false positives if #ifdef constructs
-    # get in the way of brace matching. See the testBuildClass test in
-    # cpplint_unittest.py for an example of this.
-    for obj in self.stack:
-      if isinstance(obj, _ClassInfo):
-        error(filename, obj.starting_linenum, 'build/class', 5,
-              f'Failed to find complete declaration of class {obj.name}')
-      elif isinstance(obj, _NamespaceInfo):
-        error(filename, obj.starting_linenum, 'build/namespaces', 5,
-              f'Failed to find complete declaration of namespace {obj.name}')
-
 
 def CheckForNonStandardConstructs(filename, clean_lines, linenum,
                                   nesting_state, error):
@@ -6543,7 +6523,6 @@ def ProcessFileData(filename, file_extension, lines, error,
   if _error_suppressions.HasOpenBlock():
     error(filename, _error_suppressions.GetOpenBlockStart(), 'readability/nolint', 5,
           'NONLINT block never ended')
-  nesting_state.CheckCompletedBlocks(filename, error)
 
   CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error)
 

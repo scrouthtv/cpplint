@@ -30,6 +30,7 @@ A bunch of long-overdue modernizations of the codebase!
 * You can now specify the name of the CPPLINT.cfg file through `--config` as long as it is in the same directory, thanks to @gedankenexperimenter (https://github.com/cpplint/cpplint/pull/198)
 * The new __VA_OPT__(,) will now be recognized by the Whitespace linter as a function thanks to @elrinor (https://github.com/cpplint/cpplint/pull/237)
 * The check for including a source file's header file will now scan all files with the same base name. Thanks to @crogre for figuring out what code needed to be changed and @aaronliu0130 for fixing it (https://github.com/cpplint/cpplint/pull/104)
+* `build/class` and `build/namespaces` no longer check for whether a namespace or class has a closing brace from @geoffviola (https://github.com/cpplint/cpplint/pull/272). This should be done in a more efficient manner by a compiler or language server instead. As part of this, the `build/class` category was removed. 
 * Fixed false positive when an if/else statement has braces everywhere but one of the closing braces before the final block is on a separate line by @aaronliu0130 (https://github.com/cpplint/cpplint/pull/265)
 * Usages of the deprecated sre_compile were refectored by @jspricke (https://github.com/cpplint/cpplint/pull/214)
 * Usages of deprecated unittest aliases were refactored by @tirkarthi (https://github.com/cpplint/cpplint/pull/182), @aaronliu0130 and @jayvdb
