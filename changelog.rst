@@ -7,17 +7,18 @@ Changelog
 
 A bunch of long-overdue modernizations of the codebase!
 
-* Python 2 is no longer supported. Python 3.7 and 3.12 support was added, courtesy of @jayvdb
+* Python 2 is no longer supported. Python 3.12 support was added along with fixed CI for 3.7 and 3.8, courtesy of @jayvdb
    * As a result of all this, setup.py's lint subcommand was removed. Please run the commands directly instead.
 * You can now specify blocks of code that exclude linting with NOLINTBEGIN and NOLINTEND, courtesy of @n3world (https://github.com/cpplint/cpplint/pull/213)
 * The `--filter` option can now be only applied to a specific file or even a specific line through utilizing colons, e.g. `-filter=-whitespace:foo.h,+whitespace/braces:foo.h:418`. Courtesy of @PhilLab (https://github.com/cpplint/cpplint/pull/171)
 * NOLINT and NOLINTNEXTLINE comments now support a comma-separated list of categories, courtesy of @n3world (https://github.com/cpplint/cpplint/pull/220)
 * NOLINT and NOLINTNEXTLINE will now ignore categories known to be from clang-tidy thanks to @xatier (https://github.com/cpplint/cpplint/pull/231)
-* Fix behavior with nested source repositories by @groegeorg (https://github.com/cpplint/cpplint/pull/78)
+* Fixed behavior with nested source repositories by @groegeorg (https://github.com/cpplint/cpplint/pull/78)
 * build/include-what-you-use no longer supports transitive headers from the header for the current module for parity with the style guide by @aaronliu0130
 * build/include-what-you-use now supports a plethora of new functions, courtesy of @geoffviola (https://github.com/cpplint/cpplint/pull/94)
 * build/include-what-you-use will no longer err on similarly-named classes from other namespaces thanks to @geoffviola (https://github.com/cpplint/cpplint/pull/273)
 * Indented functions inside namespaces will now be correctly erred on, courtesy of @Yujinmon (https://github.com/cpplint/cpplint/pull/235)
+* `[[(un)likely]]` no longer clouds readability/braces's super spy−scanning of braces, courtesy of @aaronliu0130 (https://github.com/cpplint/cpplint/pull/265)
 * C++20 headers will no longer be flagged as C headers thanks to @miker2 (https://github.com/cpplint/cpplint/pull/216)
    * Same goes for C++23 and C23 headers, thanks to @aaronliu0130 (https://github.com/cpplint/cpplint/pull/239)
    * "complex.h" will be treated as the C99 header instead of the legacy C++ header by @tkruse (https://github.com/cpplint/cpplint/pull/219)
@@ -29,6 +30,7 @@ A bunch of long-overdue modernizations of the codebase!
 * You can now specify the name of the CPPLINT.cfg file through `--config` as long as it is in the same directory, thanks to @gedankenexperimenter (https://github.com/cpplint/cpplint/pull/198)
 * The new __VA_OPT__(,) will now be recognized by the Whitespace linter as a function thanks to @elrinor (https://github.com/cpplint/cpplint/pull/237)
 * The check for including a source file's header file will now scan all files with the same base name. Thanks to @crogre for figuring out what code needed to be changed and @aaronliu0130 for fixing it (https://github.com/cpplint/cpplint/pull/104)
+* Fixed false positive when an if/else statement has braces everywhere but one of the closing braces before the final block is on a separate line by @aaronliu0130 (https://github.com/cpplint/cpplint/pull/265)
 * Usages of the deprecated sre_compile were refectored by @jspricke (https://github.com/cpplint/cpplint/pull/214)
 * Usages of deprecated unittest aliases were refactored by @tirkarthi (https://github.com/cpplint/cpplint/pull/182), @aaronliu0130 and @jayvdb
 * Typos in this changelog, comments and functions were fixed by @jayvdb (https://github.com/cpplint/cpplint/pull/245), @aaronliu0130 and @tkruse

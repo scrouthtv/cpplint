@@ -79,7 +79,6 @@ sed -i '208s/\([^ ]\){/\1 {/' src/sillycode.cpp # Missing space before {  [white
 # src/sillycode.cpp:197:  "At least two spaces is best between code and comments"  [whitespace/comments] [2]
 # src/sillycode.cpp:199:  "If an else has a brace on one side, it should have it on both"  [readability/braces] [5]
 # src/sillycode.cpp:202:  "An else should appear on the same line as the preceding }"  [whitespace/newline] [4]
-# src/sillycode.cpp:202:  "If an else has a brace on one side, it should have it on both"  [readability/braces] [5]
 # src/sillycode.cpp:208:  "Static/global string variables are not permitted."  [runtime/string] [4]
 # src/sillycode.cpp:209:  "Tab found; better to use spaces"  [whitespace/tab] [1]
 # src/sillycode.cpp:209:  "At least two spaces is best between code and comments"  [whitespace/comments] [2]

@@ -4371,11 +4371,13 @@ def CheckBraces(filename, clean_lines, linenum, error):
             '{ should almost always be at the end of the previous line')
 
   # An else clause should be on the same line as the preceding closing brace.
-  if re.match(r'\s*else\b\s*(?:if\b|\{|$)', line):
+  if last_wrong := re.match(r'\s*else\b\s*(?:if\b|\{|$)', line):
     prevline = GetPreviousNonBlankLine(clean_lines, linenum)[0]
     if re.match(r'\s*}\s*$', prevline):
       error(filename, linenum, 'whitespace/newline', 4,
             'An else should appear on the same line as the preceding }')
+    else:
+      last_wrong = False
 
   # If braces come on one side of an else, they should be on both.
   # However, we have to worry about "else if" that spans multiple lines!
@@ -4390,19 +4392,29 @@ def CheckBraces(filename, clean_lines, linenum, error):
       if brace_on_left != brace_on_right:    # must be brace after if
         error(filename, linenum, 'readability/braces', 5,
               'If an else has a brace on one side, it should have it on both')
-  elif re.search(r'}\s*else[^{]*$', line) or re.match(r'[^}]*else\s*{', line):
+  # Prevent detection if statement has { and we detected an improper newline after }
+  elif re.search(r'}\s*else[^{]*$', line) or (re.match(r'[^}]*else\s*{', line) and not last_wrong):
     error(filename, linenum, 'readability/braces', 5,
           'If an else has a brace on one side, it should have it on both')
 
-  # Likewise, an else should never have the else clause on the same line
-  if re.search(r'\belse [^\s{]', line) and not re.search(r'\belse if\b', line):
-    error(filename, linenum, 'whitespace/newline', 4,
-          'Else clause should never be on same line as else (use 2 lines)')
+  # No control clauses with braces should have its contents on the same line
+  # Exclude } which will be covered by empty-block detect
+  # Exclude ; which may be used by while in a do-while
+  if keyword := re.search(
+      r'\b(else if|if|while|for|switch)'  # These have parens
+      r'\s*\(.*\)\s*(?:\[\[(?:un)?likely\]\]\s*)?{\s*[^\s\\};]', line):
+    error(filename, linenum, 'whitespace/newline', 5,
+          f'Controlled statements inside brackets of {keyword.group(1)} clause'
+          ' should be on a separate line')
+  elif keyword := re.search(
+      r'\b(else|do|try)'  # These don't have parens
+      r'\s*(?:\[\[(?:un)?likely\]\]\s*)?{\s*[^\s\\}]', line):
+    error(filename, linenum, 'whitespace/newline', 5,
+          f'Controlled statements inside brackets of {keyword.group(1)} clause'
+          ' should be on a separate line')
 
-  # In the same way, a do/while should never be on one line
-  if re.match(r'\s*do [^\s{]', line):
-    error(filename, linenum, 'whitespace/newline', 4,
-          'do/while clauses should not be on a single line')
+  # TODO: Err on if...else and do...while statements without braces;
+  # style guide has changed since the below comment was written
 
   # Check single-line if/else bodies. The style guide says 'curly braces are not
   # required for single-line statements'. We additionally allow multi-line,
@@ -4422,7 +4434,7 @@ def CheckBraces(filename, clean_lines, linenum, error):
       (endline, endlinenum, endpos) = CloseExpression(clean_lines, linenum, pos)
     # Check for an opening brace, either directly after the if or on the next
     # line. If found, this isn't a single-statement conditional.
-    if (not re.match(r'\s*{', endline[endpos:])
+    if (not re.match(r'\s*(?:\[\[(?:un)?likely\]\]\s*)?{', endline[endpos:])
         and not (re.match(r'\s*$', endline[endpos:])
                  and endlinenum < (len(clean_lines.elided) - 1)
                  and re.match(r'\s*{', clean_lines.elided[endlinenum + 1]))):
