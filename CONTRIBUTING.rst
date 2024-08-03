@@ -121,7 +121,7 @@ To incorporate google's changes:
     git merge google/gh-pages # this will have a lot of conflicts
     # ... solve conflicts
     git merge -- continue
-    
+
     ## Rebase workflow (dirty, creates new commits)
     git checkout -b updates FETCH_HEAD
     git rebase master # this will have a lot of conflicts, most of which can be solved with the next command (run repeatedly)

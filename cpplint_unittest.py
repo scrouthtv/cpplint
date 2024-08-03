@@ -305,7 +305,7 @@ class CpplintTest(CpplintTestBase):
 
     results = self.GetNamespaceResults(lines)
     self.assertEqual(results, ['Do not indent within a namespace. '
-                      ' [whitespace/indent_namespace] [4]', 
+                      ' [whitespace/indent_namespace] [4]',
                       'Do not indent within a namespace. '
                       ' [whitespace/indent_namespace] [4]'])
 
@@ -5115,8 +5115,8 @@ class CpplintTest(CpplintTestBase):
       self.assertEqual('CPPLINT_CPPLINT_TEST_HEADER_H_',
                         cpplint.GetHeaderGuardCPPVariable(file_path))
 
-      # ignore _repository if it doesnt exist
-      cpplint._repository = os.path.join(temp_directory, 'NON_EXISTANT')
+      # ignore _repository if it doesn't exist
+      cpplint._repository = os.path.join(temp_directory, 'NON_EXISTENT')
       self.assertEqual('TRUNK_CPPLINT_CPPLINT_TEST_HEADER_H_',
                         cpplint.GetHeaderGuardCPPVariable(file_path))
 
