@@ -461,36 +461,36 @@ class CpplintTest(CpplintTestBase):
   def testErrorSuppression(self):
     # Two errors on same line:
     self.TestLint(
-        'long a = (int64) 65;',
-        ['Using C-style cast.  Use static_cast<int64>(...) instead'
+        'long a = (int64_t) 65;',
+        ['Using C-style cast.  Use static_cast<int64_t>(...) instead'
          '  [readability/casting] [4]',
-         'Use int16/int64/etc, rather than the C type long'
+         'Use int16_t/int64_t/etc, rather than the C type long'
          '  [runtime/int] [4]',
         ])
     # One category of error suppressed:
     self.TestLint(
-        'long a = (int64) 65;  // NOLINT(runtime/int)',
-        'Using C-style cast.  Use static_cast<int64>(...) instead'
+        'long a = (int64_t) 65;  // NOLINT(runtime/int)',
+        'Using C-style cast.  Use static_cast<int64_t>(...) instead'
         '  [readability/casting] [4]')
     # Two categories of errors suppressed:
     self.TestLint(
-        'long a = (int64) 65;  // NOLINT(runtime/int,readability/casting)',
+        'long a = (int64_t) 65;  // NOLINT(runtime/int,readability/casting)',
         '')
 
     # All categories suppressed: (two aliases)
-    self.TestLint('long a = (int64) 65;  // NOLINT', '')
-    self.TestLint('long a = (int64) 65;  // NOLINT(*)', '')
+    self.TestLint('long a = (int64_t) 65;  // NOLINT', '')
+    self.TestLint('long a = (int64_t) 65;  // NOLINT(*)', '')
     # Malformed NOLINT directive:
     self.TestLint(
         'long a = 65;  // NOLINT(foo)',
         ['Unknown NOLINT error category: foo'
          '  [readability/nolint] [5]',
-         'Use int16/int64/etc, rather than the C type long  [runtime/int] [4]',
+         'Use int16_t/int64_t/etc, rather than the C type long  [runtime/int] [4]',
         ])
     # Irrelevant NOLINT directive has no effect:
     self.TestLint(
         'long a = 65;  // NOLINT(readability/casting)',
-        'Use int16/int64/etc, rather than the C type long'
+        'Use int16_t/int64_t/etc, rather than the C type long'
         '  [runtime/int] [4]')
     # NOLINTNEXTLINE silences warning for the next line instead of current line
     error_collector = ErrorCollector(self.assertTrue)
@@ -506,7 +506,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTNEXTLINE(runtime/int,readability/casting)',
-                             'long a = (int64) 65;',
+                             'long a = (int64_t) 65;',
                              ''],
                             error_collector)
     self.assertEqual('', error_collector.Results())
@@ -515,7 +515,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.h', 'h',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINT(build/header_guard)',
-                             'int64 a = (uint64) 65;',
+                             'int64_t a = (uint64_t) 65;',
                              '//  LINT_C_FILE',
                              ''],
                             error_collector)
@@ -549,7 +549,7 @@ class CpplintTest(CpplintTestBase):
       cpplint.ProcessFileData('test.h', 'h',
                               ['// Copyright 2014 Your Company.',
                                '// NOLINT(build/header_guard)',
-                               'int64 a = (uint64) 65;',
+                               'int64_t a = (uint64_t) 65;',
                                '/* Prevent warnings about the modeline',
                                modeline,
                                '*/',
@@ -589,7 +589,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTBEGIN',
-                             'long a = (int64) 65;'
+                             'long a = (int64_t) 65;'
                              'long a = 65;',
                              '//  ./command' + (' -verbose' * 80)],
                             error_collector)
@@ -598,7 +598,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTBEGIN(*)',
-                             'long a = (int64) 65;'
+                             'long a = (int64_t) 65;'
                              'long a = 65;',
                              '//  ./command' + (' -verbose' * 80)],
                             error_collector)
@@ -608,7 +608,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTBEGIN',
-                             'long a = (int64) 65;'
+                             'long a = (int64_t) 65;'
                              'long a = 65;',
                              '// NOLINTEND',
                              '//  ./command' + (' -verbose' * 80),
@@ -621,7 +621,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTBEGIN(readability/casting,runtime/int)',
-                             'long a = (int64) 65;',
+                             'long a = (int64_t) 65;',
                              'long a = 65;',
                              '//  ./command' + (' -verbose' * 80),
                              '// NOLINTEND',
@@ -635,7 +635,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTBEGIN(readability/casting,runtime/int)',
-                             'long a = (int64) 65;',
+                             'long a = (int64_t) 65;',
                              'long a = 65;',
                              '// NOLINTEND(readability/casting)',
                              ''],
@@ -648,7 +648,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTBEGIN(readability/casting,runtime/int)',
-                             'long a = (int64) 65;',
+                             'long a = (int64_t) 65;',
                              '// NOLINTBEGIN(runtime/int)',
                              'long a = 65;',
                              '// NOLINTEND(*)',
@@ -661,7 +661,7 @@ class CpplintTest(CpplintTestBase):
     cpplint.ProcessFileData('test.cc', 'cc',
                             ['// Copyright 2014 Your Company.',
                              '// NOLINTBEGIN(readability/casting,runtime/int)',
-                             'long a = (int64) 65;',
+                             'long a = (int64_t) 65;',
                              'long a = 65;',
                              ''],
                             error_collector)
@@ -680,14 +680,14 @@ class CpplintTest(CpplintTestBase):
   def testVariableDeclarations(self):
     self.TestLint(
         'long a = 65;',
-        'Use int16/int64/etc, rather than the C type long'
+        'Use int16_t/int64_t/etc, rather than the C type long'
         '  [runtime/int] [4]')
     self.TestLint(
         'long double b = 65.0;',
         '')
     self.TestLint(
         'long long aa = 6565;',
-        'Use int16/int64/etc, rather than the C type long'
+        'Use int16_t/int64_t/etc, rather than the C type long'
         '  [runtime/int] [4]')
 
   # Test C-style cast cases.
@@ -706,16 +706,16 @@ class CpplintTest(CpplintTestBase):
         '  [readability/casting] [4]')
 
     self.TestLint(
-        'uint16 a = (uint16)1.0;',
-        'Using C-style cast.  Use static_cast<uint16>(...) instead'
+        'uint16_t a = (uint16_t)1.0;',
+        'Using C-style cast.  Use static_cast<uint16_t>(...) instead'
         '  [readability/casting] [4]')
     self.TestLint(
-        'int32 a = (int32)1.0;',
-        'Using C-style cast.  Use static_cast<int32>(...) instead'
+        'int32_t a = (int32_t)1.0;',
+        'Using C-style cast.  Use static_cast<int32_t>(...) instead'
         '  [readability/casting] [4]')
     self.TestLint(
-        'uint64 a = (uint64)1.0;',
-        'Using C-style cast.  Use static_cast<uint64>(...) instead'
+        'uint64_t a = (uint64_t)1.0;',
+        'Using C-style cast.  Use static_cast<uint64_t>(...) instead'
         '  [readability/casting] [4]')
     self.TestLint(
         'size_t a = (size_t)1.0;',
@@ -861,7 +861,7 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('void Method(char* x) {', '')
     self.TestLint('void Method(char* /*x*/) {', '')
     self.TestLint('void Method(char* x);', '')
-    self.TestLint('typedef void (*Method)(int32 x);', '')
+    self.TestLint('typedef void (*Method)(int32_t x);', '')
     self.TestLint('static void operator delete[](void* x) throw();', '')
     self.TestLint('static void operator delete[](void* /*x*/) throw();', '')
 
@@ -904,8 +904,8 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('int a = int();', '')  # constructor
     self.TestLint('X::X() : a(int()) {}', '')  # default constructor
     self.TestLint('operator bool();', '')  # Conversion operator
-    self.TestLint('new int64(123);', '')  # "new" operator on basic type
-    self.TestLint('new   int64(123);', '')  # "new" operator on basic type
+    self.TestLint('new int64_t(123);', '')  # "new" operator on basic type
+    self.TestLint('new   int64_t(123);', '')  # "new" operator on basic type
     self.TestLint('new const int(42);', '')  # "new" on const-qualified type
     self.TestLint('using a = bool(int arg);', '')  # C++11 alias-declaration
     self.TestLint('x = bit_cast<double(*)[3]>(y);', '')  # array of array
@@ -940,7 +940,7 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('typedef bool(MyClass::*MemberFunctionPointer)() const;', '')
     self.TestLint('void Function(bool(FunctionPointerArg)());', '')
     self.TestLint('void Function(bool(FunctionPointerArg)()) {}', '')
-    self.TestLint('typedef set<int64, bool(*)(int64, int64)> SortedIdSet', '')
+    self.TestLint('typedef set<int64_t, bool(*)(int64_t, int64_t)> SortedIdSet', '')
     self.TestLint(
         'bool TraverseNode(T *Node, bool(VisitorBase:: *traverse) (T *t)) {}',
         '')
@@ -5227,8 +5227,8 @@ class CpplintTest(CpplintTestBase):
     qualifiers = [None, 'const', 'volatile']
     signs = [None, 'signed', 'unsigned']
     types = ['void', 'char', 'int', 'float', 'double',
-             'schar', 'int8', 'uint8', 'int16', 'uint16',
-             'int32', 'uint32', 'int64', 'uint64']
+             'schar', 'int8_t', 'uint8_t', 'int16_t', 'uint16_t',
+             'int32_t', 'uint32_t', 'int64_t', 'uint64_t']
     storage_classes = ['extern', 'register', 'static', 'typedef']
 
     build_storage_class_error_message = (
@@ -5245,7 +5245,7 @@ class CpplintTest(CpplintTestBase):
     self.TestLint('double const static foo = 2.0;',
                   build_storage_class_error_message)
 
-    self.TestLint('uint64 typedef unsigned_long_long;',
+    self.TestLint('uint64_t typedef unsigned_long_long;',
                   build_storage_class_error_message)
 
     self.TestLint('int register foo = 0;',
@@ -6513,7 +6513,7 @@ class NestingStateTest(unittest.TestCase):
     self.assertEqual(len(self.nesting_state.stack), 0)
 
   def testInlineAssembly(self):
-    self.UpdateWithLines(['void CopyRow_SSE2(const uint8* src, uint8* dst,',
+    self.UpdateWithLines(['void CopyRow_SSE2(const uint8_t* src, uint8_t* dst,',
                           '                  int count) {'])
     self.assertEqual(len(self.nesting_state.stack), 1)
     self.assertEqual(self.nesting_state.stack[-1].open_parentheses, 0)
