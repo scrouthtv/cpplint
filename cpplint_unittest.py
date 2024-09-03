@@ -4578,6 +4578,34 @@ class CpplintTest(CpplintTestBase):
       self.TestLanguageRulesCheck('foo.' + extension, 'namespace {', '')
       self.TestLanguageRulesCheck('foo.' + extension, 'namespace foo {', '')
 
+  def testNamespaceNames(self):
+    for extension in ['h', 'hpp', 'hxx', 'h++', 'cuh']:
+      self.TestLanguageRulesCheck(
+        'foo.' + extension, 'namespace CamelCase {}',
+        'Namespace names must be all lower-case, with words separated by underscores. '
+        'See https://google.github.io/styleguide/cppguide.html#Namespace_Names '
+        'for more information.  [build/namespaces_names] [4]')
+      self.TestLanguageRulesCheck(
+        'foo.' + extension, 'inline namespace Uppercase {',
+        'Namespace names must be all lower-case, with words separated by underscores. '
+        'See https://google.github.io/styleguide/cppguide.html#Namespace_Names '
+        'for more information.  [build/namespaces_names] [4]')
+      self.TestLanguageRulesCheck(
+        'foo.' + extension, 'namespace Uppercase = std',
+        'Namespace names must be all lower-case, with words separated by underscores. '
+        'See https://google.github.io/styleguide/cppguide.html#Namespace_Names '
+        'for more information.  [build/namespaces_names] [4]')
+      self.TestLanguageRulesCheck(
+        'foo.' + extension, 'namespace a::inline b::inline C {',
+        'Namespace names must be all lower-case, with words separated by underscores. '
+        'See https://google.github.io/styleguide/cppguide.html#Namespace_Names '
+        'for more information.  [build/namespaces_names] [4]')
+      self.TestLanguageRulesCheck('foo.' + extension, 'namespace lower_case {}', '')
+      self.TestLanguageRulesCheck('foo.' + extension, 'namespace a::b::c {}', '')
+      self.TestLanguageRulesCheck('foo.' + extension, 'namespace a::b::inline c {}', '')
+      self.TestLanguageRulesCheck('foo.' + extension, 'namespace lower_case = Uppercase', '')
+      self.TestLanguageRulesCheck('foo.' + extension, 'inline namespace a::inline b {}}', '')
+
   def testBuildClass(self):
     # Test that the linter can parse to the end of class definitions,
     # and that it will report when it can't.
