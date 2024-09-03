@@ -307,6 +307,7 @@ _ERROR_CATEGORIES = [
     'build/include_what_you_use',
     'build/namespaces_headers',
     'build/namespaces_literals',
+    'build/namespaces_names',
     'build/namespaces',
     'build/printf_format',
     'build/storage_class',
@@ -5483,6 +5484,19 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension,
           'Do not use unnamed namespaces in header files.  See '
           'https://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Namespaces'
           ' for more information.')
+
+  # Check namespace names for correct naming, according to
+  # https://google.github.io/styleguide/cppguide.html#Namespace_Names
+  # namespace names are "all lower-case, with words separated by underscores"
+  match = re.match(r'.*namespace\s+([^{=;]+)\s+[{;=]', line)
+  if match:
+    name = match.group(1)
+    if name != "" and not re.match(r'^((inline )?[a-z_]+(::)?)+$', name):
+      error(filename, linenum, 'build/namespaces_names', 4,
+            'Namespace names must be all lower-case, with words separated '
+            'by underscores. See '
+            'https://google.github.io/styleguide/cppguide.html#Namespace_Names'
+            ' for more information.')
 
 
 def CheckGlobalStatic(filename, clean_lines, linenum, error):
