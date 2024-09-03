@@ -2,8 +2,9 @@ src/*
 1
 3
 Done processing src/interface-descriptors.h
-Total errors found: 2
+Total errors found: 3
 
 src/interface-descriptors.h:5:  #ifndef header guard has wrong style, please use: SAMPLES_V8_SAMPLE_SRC_INTERFACE_DESCRIPTORS_H_  [build/header_guard] [5]
 src/interface-descriptors.h:1255:  #endif line should be "#endif  // SAMPLES_V8_SAMPLE_SRC_INTERFACE_DESCRIPTORS_H_"  [build/header_guard] [5]
+src/interface-descriptors.h:15:  Namespace names must be all lower-case, with words separated by underscores. See https://google.github.io/styleguide/cppguide.html#Namespace_Names for more information.  [build/namespaces_names] [4]
 
